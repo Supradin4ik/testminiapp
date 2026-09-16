@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<title>Production Mini App</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  /* ============ DESIGN SYSTEM ============ */
+  :root {
+    --bg:        var(--tg-theme-bg-color, #0e1116);
+    --bg-2:      var(--tg-theme-secondary-bg-color, #161b22);
+    --card:      #1a2029;
+    --card-2:    #212a35;
+    --border:    #2a3441;
+    --text:      var(--tg-theme-text-color, #e6edf3);
+    --text-2:    #8b949e;
+    --text-3:    #5d6673;
+    --accent:    var(--tg-theme-button-color, #2f81f7);
+    --accent-tx: var(--tg-theme-button-text-color, #fff);
+
+    --ok:    #2ea043;
+    --warn:  #d29922;
+    --dang:  #f85149;
+    --info:  #58a6ff;
+    --neutral:#6e7681;
+
+    --r-s: 6px;
+    --r-m: 10px;
+    --r-l: 14px;
+
+    --sp-1: 4px;
+    --sp-2: 8px;
+    --sp-3: 12px;
+    --sp-4: 16px;
+    --sp-5: 20px;
+    --sp-6: 24px;
+
+    --tap: 44px;
+    --nav-h: 60px;
+    --header-h: 52px;
+
+    --f-xs: 11px;
+    --f-s:  13px;
+    --f-m:  15px;
+    --f-l:  18px;
+    --f-xl: 22px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    font-size: var(--f-m);
+    line-height: 1.4;
+    overscroll-behavior-y: none;
+  }
+  body { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
+  button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+  input, textarea { font: inherit; color: inherit; }
+
+  /* ============ APP SHELL ============ */
+  #app { min-height: 100vh; display: flex; flex-direction: column; max-width: 720px; margin: 0 auto; }
+
+  .header {
+    position: sticky; top: 0; z-index: 20;
+    height: var(--header-h);
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: 0 var(--sp-4);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .header__title { font-size: var(--f-l); font-weight: 600; flex: 1; }
+  .header__back {
+    width: 32px; height: 32px; display: grid; place-items: center;
+    border-radius: var(--r-s); margin-left: -8px;
+  }
+  .header__back:active { background: var(--card); }
+
+  .context-bar {
+    display: flex; align-items: center; gap: var(--sp-2);
+    margin: var(--sp-2) var(--sp-4) 0;
+    padding: var(--sp-2) var(--sp-3);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-m);
+    font-size: var(--f-s);
+    color: var(--text-2);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .context-bar b { color: var(--text); font-weight: 600; }
+
+  .content { flex: 1; padding: var(--sp-4); padding-bottom: var(--sp-6); }
+
+  /* ============ BOTTOM NAV ============ */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--bg-2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 30;
+  }
+  .nav__item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px;
+    font-size: var(--f-xs);
+    color: var(--text-3);
+    min-height: var(--tap);
+    transition: color .12s;
+  }
+  .nav__item.active { color: var(--accent); }
+  .nav__item svg { width: 22px; height: 22px; }
+
+  /* ============ CARDS ============ */
+  .section { margin-bottom: var(--sp-5); }
+  .section__head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: var(--sp-3);
+  }
+  .section__title { font-size: var(--f-s); font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
+  .section__action { font-size: var(--f-s); color: var(--accent); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-m);
+    padding: var(--sp-3);
+  }
+  .card + .card { margin-top: var(--sp-2); }
+
+  .row {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-3);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-m);
+    min-height: var(--tap);
+  }
+  .row + .row { margin-top: var(--sp-2); }
+  .row:active { background: var(--card-2); }
+  .row__main { flex: 1; min-width: 0; }
+  .row__title { font-weight: 600; font-size: var(--f-m); }
+  .row__sub { font-size: var(--f-s); color: var(--text-2); margin-top: 2px; }
+  .row__chev { color: var(--text-3); flex-shrink: 0; }
+
+  /* ============ STATUS ============ */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: var(--f-xs); font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: var(--card-2);
+    color: var(--text-2);
+  }
+  .badge--ok      { background: rgba(46,160,67,.15);  color: var(--ok); }
+  .badge--warn    { background: rgba(210,153,34,.15); color: var(--warn); }
+  .badge--dang    { background: rgba(248,81,73,.15);  color: var(--dang); }
+  .badge--info    { background: rgba(88,166,255,.15); color: var(--info); }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .dot--ok   { background: var(--ok); }
+  .dot--warn { background: var(--warn); }
+  .dot--dang { background: var(--dang); }
+  .dot--info { background: var(--info); }
+
+  /* ============ PROGRESS ============ */
+  .progress {
+    height: 4px; background: var(--card-2);
+    border-radius: 100px; overflow: hidden;
+  }
+  .progress__fill { height: 100%; background: var(--accent); border-radius: 100px; transition: width .3s; }
+
+  /* ============ GRID ============ */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); }
+
+  /* ============ ATTENTION CARD ============ */
+  .attention {
+    display: flex; align-items: center; gap: var(--sp-3);
+    padding: var(--sp-3);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--neutral);
+    border-radius: var(--r-m);
+  }
+  .attention + .attention { margin-top: var(--sp-2); }
+  .attention--dang { border-left-color: var(--dang); }
+  .attention--warn { border-left-color: var(--warn); }
+  .attention--info { border-left-color: var(--info); }
+  .attention--ok   { border-left-color: var(--ok); }
+  .attention__main { flex: 1; min-width: 0; }
+  .attention__title { font-weight: 600; font-size: var(--f-s); }
+  .attention__sub { font-size: var(--f-s); color: var(--text-2); margin-top: 2px; }
+
+  /* ============ QUICK ACTIONS ============ */
+  .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-2); }
+  .quick {
+    display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2);
+    padding: var(--sp-3);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-m);
+    min-height: 88px;
+    text-align: left;
+  }
+  .quick:active { background: var(--card-2); }
+  .quick__icon { font-size: 20px; }
+  .quick__label { font-size: var(--f-s); font-weight: 500; }
+
+  /* ============ STOCK CARD ============ */
+  .stock {
+    padding: var(--sp-3);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-m);
+  }
+  .stock + .stock { margin-top: var(--sp-2); }
+  .stock__head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--sp-2); }
+  .stock__brand { font-size: var(--f-l); font-weight: 700; letter-spacing: -0.01em; }
+  .stock__dim { font-size: var(--f-s); color: var(--text-2); }
+  .stock__meta { font-size: var(--f-s); color: var(--text-2); margin-top: 2px; }
+  .stock__stats {
+    display: flex; gap: var(--sp-4); margin-top: var(--sp-3);
+    padding-top: var(--sp-3); border-top: 1px solid var(--border);
+  }
+  .stat__val { font-size: var(--f-m); font-weight: 600; }
+  .stat__lbl { font-size: var(--f-xs); color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+
+  /* ============ BUTTONS ============ */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: var(--sp-2);
+    min-height: var(--tap);
+    padding: 0 var(--sp-4);
+    border-radius: var(--r-m);
+    font-weight: 600;
+    font-size: var(--f-m);
+    transition: opacity .1s;
+  }
+  .btn:active { opacity: .7; }
+  .btn--primary { background: var(--accent); color: var(--accent-tx); }
+  .btn--ghost   { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .btn--dang    { background: var(--dang); color: #fff; }
+  .btn--block   { width: 100%; }
+  .btn-row { display: flex; gap: var(--sp-2); margin-top: var(--sp-4); }
+  .btn-row .btn { flex: 1; }
+
+  /* ============ MODAL / SHEET ============ */
+  .overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,.5);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .15s;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    width: 100%; max-width: 720px;
+    background: var(--bg-2);
+    border-radius: var(--r-l) var(--r-l) 0 0;
+    padding: var(--sp-4);
+    padding-bottom: calc(var(--sp-4) + env(safe-area-inset-bottom));
+    max-height: 90vh; overflow-y: auto;
+    transform: translateY(100%); transition: transform .2s ease-out;
+  }
+  .overlay.open .sheet { transform: translateY(0); }
+  .sheet__handle {
+    width: 36px; height: 4px; border-radius: 100px;
+    background: var(--border); margin: 0 auto var(--sp-4);
+  }
+  .sheet__title { font-size: var(--f-l); font-weight: 600; margin-bottom: var(--sp-4); }
+
+  /* ============ CONFIRM ============ */
+  .confirm-row {
+    display: flex; justify-content: space-between; gap: var(--sp-3);
+    padding: var(--sp-2) 0;
+    border-bottom: 1px solid var(--border);
+    font-size: var(--f-s);
+  }
+  .confirm-row:last-of-type { border-bottom: none; }
+  .confirm-row__label { color: var(--text-2); }
+  .confirm-row__value { font-weight: 600; text-align: right; }
+  .confirm-delta {
+    margin-top: var(--sp-3);
+    padding: var(--sp-3);
+    background: var(--card);
+    border-radius: var(--r-m);
+    font-size: var(--f-s);
+    color: var(--text-2);
+  }
+  .confirm-delta b { color: var(--text); }
+
+  .danger-note {
+    padding: var(--sp-3);
+    background: rgba(248,81,73,.08);
+    border: 1px solid rgba(248,81,73,.3);
+    border-radius: var(--r-m);
+    color: var(--dang);
+    font-size: var(--f-s);
+    margin-bottom: var(--sp-3);
+  }
+
+  /* ============ CHAT ============ */
+  .chat { display: flex; flex-direction: column; gap: var(--sp-3); }
+  .msg { max-width: 85%; padding: var(--sp-3); border-radius: var(--r-m); font-size: var(--f-s); }
+  .msg--user { align-self: flex-end; background: var(--accent); color: var(--accent-tx); border-bottom-right-radius: 4px; }
+  .msg--ai   { align-self: flex-start; background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .msg__actions { display: flex; gap: var(--sp-2); margin-top: var(--sp-3); flex-wrap: wrap; }
+  .msg__actions .btn { min-height: 36px; padding: 0 var(--sp-3); font-size: var(--f-s); }
+  .chat-input {
+    display: flex; gap: var(--sp-2);
+    padding: var(--sp-2);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-m);
+    margin-top: var(--sp-3);
+  }
+  .chat-input input { flex: 1; background: none; border: none; outline: none; padding: var(--sp-2); }
+  .chat-input button { padding: 0 var(--sp-4); background: var(--accent); color: var(--accent-tx); border-radius: var(--r-s); font-weight: 600; }
+
+  /* ============ EMPTY ============ */
+  .empty {
+    text-align: center; padding: var(--sp-6) var(--sp-4);
+    color: var(--text-2); font-size: var(--f-s);
+  }
+  .empty__icon { font-size: 32px; margin-bottom: var(--sp-3); opacity: .5; }
+
+  /* ============ SKELETON ============ */
+  .skel {
+    background: linear-gradient(90deg, var(--card) 0%, var(--card-2) 50%, var(--card) 100%);
+    background-size: 200% 100%;
+    animation: skel 1.2s infinite;
+    border-radius: var(--r-s);
+  }
+  @keyframes skel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  /* ============ FAB ============ */
+  .fab {
+    position: fixed;
+    right: var(--sp-4);
+    bottom: calc(var(--nav-h) + var(--sp-4) + env(safe-area-inset-bottom));
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--accent-tx);
+    display: grid; place-items: center;
+    font-size: 22px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.3);
+    z-index: 25;
+  }
+  .fab:active { transform: scale(.95); }
+
+  /* ============ UTIL ============ */
+  .muted { color: var(--text-2); }
+  .tiny  { font-size: var(--f-xs); color: var(--text-3); }
+  .mono  { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .flex  { display: flex; align-items: center; gap: var(--sp-2); }
+  .between { justify-content: space-between; }
+  .mt-3 { margin-top: var(--sp-3); }
+  .mt-4 { margin-top: var(--sp-4); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="header"></div>
+  <div id="context"></div>
+  <div id="content" class="content"></div>
+</div>
+
+<nav id="nav" class="nav"></nav>
+<div id="fab"></div>
+<div id="overlay" class="overlay"></div>
+
+<script>
+/* ============================================================
+   TELEGRAM INIT
+   ============================================================ */
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  tg.setHeaderColor?.('bg_color');
+  tg.setBackgroundColor?.('bg_color');
+}
+const haptic = {
+  tap:      () => tg?.HapticFeedback?.impactOccurred('light'),
+  success:  () => tg?.HapticFeedback?.notificationOccurred('success'),
+  warn:     () => tg?.HapticFeedback?.notificationOccurred('warning'),
+  error:    () => tg?.HapticFeedback?.notificationOccurred('error'),
+};
+
+/* ============================================================
+   MOCK DATA — BACKEND GAP
+   Заменить на реальные вызовы API.
+   Формат — предварительный, подстроить под backend.
+   ============================================================ */
+
+// BACKEND GAP: GET /api/me — вернуть {id, name, role, permissions[]}
+const MOCK_USERS = {
+  owner:      { id: 1, name: 'Александр', role: 'owner',      roleLabel: 'Владелец' },
+  chief:      { id: 2, name: 'Игорь',     role: 'chief',      roleLabel: 'Нач. производства' },
+  laser:      { id: 3, name: 'Пётр',      role: 'laser',      roleLabel: 'Оператор лазера' },
+  painter:    { id: 4, name: 'Мария',     role: 'painter',    roleLabel: 'Маляр' },
+  designer:   { id: 5, name: 'Олег',      role: 'designer',   roleLabel: 'Конструктор' },
+};
+
+// роль из initDataUnsafe (демо) или из MOCK
+let currentUser = (() => {
+  const u = tg?.initDataUnsafe?.user;
+  // BACKEND GAP: роль должна приходить с backend, не вычисляться на клиенте
+  const stored = localStorage.getItem('demo_role') || 'owner';
+  const base = MOCK_USERS[stored] || MOCK_USERS.owner;
+  return { ...base, tgName: u ? `${u.first_name} ${u.last_name || ''}`.trim() : base.name };
+})();
+
+// BACKEND GAP: GET /api/dashboard/attention
+const MOCK_ATTENTION = [
+  { level: 'warn', icon: '⏳', title: '2 действия ждут подтверждения', sub: 'Расход · создание наряда', action: 'pending' },
+  { level: 'dang', icon: '⚠️', title: 'Нехватка материала', sub: 'Z275 · 1.5 мм · 1250×2500', action: 'warehouse' },
+  { level: 'warn', icon: '🔧', title: 'Наряд #16 требует внимания', sub: 'Гибка ожидает 3 дня', action: 'orders' },
+  { level: 'info', icon: '📄', title: 'Нет DXF в проекте', sub: 'DPD Baltic V2 Pilot · 3 позиции', action: 'projects' },
+];
+
+// BACKEND GAP: GET /api/orders?role=...
+const MOCK_ORDERS = [
+  { id: 16, project: 'DPD Baltic V2 Pilot', date: '12.09.2026', done: 24, total: 31, stages: [
+    { name: 'Лазер', status: 'active', progress: 70 },
+    { name: 'Гибка', status: 'pending', progress: 0 },
+    { name: 'Малярка', status: 'pending', progress: 0 },
+  ], source: 'internal' },
+  { id: 17, project: 'Metro Shelf R3', date: '14.09.2026', done: 8, total: 22, stages: [
+    { name: 'Лазер', status: 'done', progress: 100 },
+    { name: 'Гибка', status: 'active', progress: 40 },
+  ], source: 'internal' },
+  { id: 24, project: 'DPD Baltic V2 Pilot 1 A', date: '16.09.2026', done: 0, total: 12, stages: [
+    { name: 'Лазер', status: 'pending', progress: 0 },
+  ], source: 'mes' },
+];
+
+// BACKEND GAP: GET /api/warehouse/stock
+const MOCK_STOCK = [
+  { brand: 'Z275', thickness: 1.5, format: '1250 × 2500', good: 42, scrap: 3, pallets: 5 },
+  { brand: 'Z275', thickness: 2.0, format: '1250 × 2500', good: 18, scrap: 1, pallets: 2 },
+  { brand: 'AISI 304', thickness: 1.0, format: '1000 × 2000', good: 7, scrap: 0, pallets: 1 },
+  { brand: 'Z100', thickness: 0.8, format: '1250 × 2500', good: 0, scrap: 12, pallets: 3 },
+];
+
+// BACKEND GAP: GET /api/pending
+const MOCK_PENDING = [
+  { id: 'p1', type: 'warehouse_out', title: 'Записать расход', sub: 'Z275 · 1.5 мм · 12 листов → Наряд #16' },
+  { id: 'p2', type: 'order_create', title: 'Создать наряд #24', sub: 'DPD Baltic V2 Pilot 1 A' },
+  { id: 'p3', type: 'file_send',    title: 'Отправить файл Ивану', sub: 'DPD-031.dxf' },
+];
+
+const MOCK_QUICK_ACTIONS_BY_ROLE = {
+  owner:   [
+    { icon: '📥', label: 'Приход', action: 'incoming' },
+    { icon: '📤', label: 'Расход', action: 'outgoing' },
+    { icon: '📋', label: 'Наряды', action: 'nav:orders' },
+    { icon: '🏭', label: 'Склад', action: 'nav:warehouse' },
+    { icon: '⏱', label: 'Табель', action: 'timesheet' },
+    { icon: '✨', label: 'AI', action: 'ai' },
+  ],
+  laser: [
+    { icon: '📋', label: 'Мои наряды', action: 'nav:orders' },
+    { icon: '🏭', label: 'Склад', action: 'nav:warehouse' },
+    { icon: '⏱', label: 'Табель', action: 'timesheet' },
+  ],
+  painter: [
+    { icon: '🎨', label: 'Краска', action: 'paint' },
+    { icon: '⏱', label: 'Табель', action: 'timesheet' },
+  ],
+  designer: [
+    { icon: '📁', label: 'Мои проекты', action: 'nav:projects' },
+    { icon: '✅', label: 'Проверки', action: 'checks' },
+  ],
+  chief: [
+    { icon: '📋', label: 'Наряды', action: 'nav:orders' },
+    { icon: '🏭', label: 'Склад', action: 'nav:warehouse' },
+    { icon: '👥', label: 'Люди', action: 'people' },
+    { icon: '⏱', label: 'Табель', action: 'timesheet' },
+  ],
+};
+
+/* ============================================================
+   NAVIGATION (role-based)
+   ============================================================ */
+const NAV_BY_ROLE = {
+  owner: [
+    { id: 'home',      label: 'Главная', icon: 'home' },
+    { id: 'work',      label: 'Работа',  icon: 'work' },
+    { id: 'warehouse', label: 'Склад',   icon: 'box' },
+    { id: 'orders',    label: 'Наряды',  icon: 'list' },
+    { id: 'more',      label: 'Ещё',     icon: 'more' },
+  ],
+  chief: [
+    { id: 'home',      label: 'Главная', icon: 'home' },
+    { id: 'orders',    label: 'Наряды',  icon: 'list' },
+    { id: 'warehouse', label: 'Склад',   icon: 'box' },
+    { id: 'more',      label: 'Ещё',     icon: 'more' },
+  ],
+  laser: [
+    { id: 'home',      label: 'Главная', icon: 'home' },
+    { id: 'orders',    label: 'Наряды',  icon: 'list' },
+    { id: 'warehouse', label: 'Склад',   icon: 'box' },
+    { id: 'more',      label: 'Ещё',     icon: 'more' },
+  ],
+  painter: [
+    { id: 'home', label: 'Главная', icon: 'home' },
+    { id: 'more', label: 'Ещё',     icon: 'more' },
+  ],
+  designer: [
+    { id: 'home',     label: 'Главная', icon: 'home' },
+    { id: 'projects', label: 'Проекты', icon: 'folder' },
+    { id: 'more',     label: 'Ещё',     icon: 'more' },
+  ],
+};
+
+const ICONS = {
+  home:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  work:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
+  box:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 7 9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg>',
+  list:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>',
+  more:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>',
+  folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+  back:   '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+  chev:   '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  tab: 'home',
+  stack: [],           // стек экранов для back
+  context: {           // current context — аналог context в боте
+    order: null,       // { id, project }
+    project: null,
+  },
+  pending: [...MOCK_PENDING],
+};
+
+/* ============================================================
+   RENDER HELPERS
+   ============================================================ */
+const $ = (sel, root = document) => root.querySelector(sel);
+const h = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+const esc = (s) => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+
+function renderHeader(title, { back = false } = {}) {
+  return `<div class="header">
+    ${back ? `<button class="header__back" data-action="back">${ICONS.back}</button>` : ''}
+    <div class="header__title">${esc(title)}</div>
+  </div>`;
+}
+
+function renderContextBar() {
+  const { order, project } = state.context;
+  if (!order && !project) return '';
+  const parts = [];
+  if (order) parts.push(`📋 Наряд <b>#${order.id}</b>`);
+  if (order?.project || project) parts.push(`<b>${esc(order?.project || project)}</b>`);
+  return `<div class="context-bar" data-action="context-open">${parts.join(' › ')}</div>`;
+}
+
+function renderNav() {
+  const items = NAV_BY_ROLE[currentUser.role] || NAV_BY_ROLE.laser;
+  return items.map(it => `
+    <button class="nav__item ${state.tab === it.id ? 'active' : ''}" data-action="tab:${it.id}">
+      ${ICONS[it.icon]}
+      <span>${it.label}</span>
+    </button>
+  `).join('');
+}
+
+function renderFab() {
+  const canAI = ['owner','chief'].includes(currentUser.role);
+  if (!canAI) return '';
+  return `<button class="fab" data-action="ai">✨</button>`;
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+
+function screenHome() {
+  const qa = MOCK_QUICK_ACTIONS_BY_ROLE[currentUser.role] || [];
+  const attn = MOCK_ATTENTION.slice(0, currentUser.role === 'owner' || currentUser.role === 'chief' ? 4 : 2);
+
+  return `
+    ${renderHeader(currentUser.name)}
+    ${renderContextBar()}
+    <div class="content">
+      <div class="card mt-3" style="display:flex; align-items:center; gap:12px;">
+        <div style="width:44px;height:44px;border-radius:50%;background:var(--accent);display:grid;place-items:center;font-weight:700;color:var(--accent-tx);">${esc(currentUser.name[0])}</div>
+        <div style="flex:1;">
+          <div style="font-weight:600;">${esc(currentUser.name)}</div>
+          <div class="muted" style="font-size:var(--f-s);">${esc(currentUser.roleLabel)}</div>
+        </div>
+      </div>
+
+      ${attn.length ? `
+        <div class="section mt-4">
+          <div class="section__head">
+            <div class="section__title">Требует внимания</div>
+            <div class="section__action" data-action="pending">Все</div>
+          </div>
+          ${attn.map(a => `
+            <div class="attention attention--${a.level}" data-action="nav:${a.action}">
+              <div class="attention__main">
+                <div class="attention__title">${a.icon} ${esc(a.title)}</div>
+                <div class="attention__sub">${esc(a.sub)}</div>
+              </div>
+              ${ICONS.chev}
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      ${state.context.order ? `
+        <div class="section mt-4">
+          <div class="section__head"><div class="section__title">Текущая работа</div></div>
+          <div class="card" data-action="order:${state.context.order.id}">
+            <div class="flex between">
+              <div style="font-size:var(--f-l);font-weight:700;">Наряд #${state.context.order.id}</div>
+              <div class="badge badge--info">в работе</div>
+            </div>
+            <div class="muted" style="font-size:var(--f-s);margin-top:4px;">${esc(state.context.order.project)}</div>
+            <div class="mt-3">
+              <div class="flex between tiny"><span>Прогресс</span><span>${state.context.order.done} / ${state.context.order.total}</span></div>
+              <div class="progress mt-3"><div class="progress__fill" style="width:${Math.round(state.context.order.done/state.context.order.total*100)}%"></div></div>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="section mt-4">
+        <div class="section__head"><div class="section__title">Быстрые действия</div></div>
+        <div class="quick-grid">
+          ${qa.map(q => `
+            <button class="quick" data-action="${q.action}">
+              <div class="quick__icon">${q.icon}</div>
+              <div class="quick__label">${esc(q.label)}</div>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+
+      ${state.pending.length ? `
+        <div class="section mt-4">
+          <div class="section__head"><div class="section__title">Ожидают подтверждения</div></div>
+          ${state.pending.slice(0, 3).map(p => `
+            <div class="row" data-action="pending:${p.id}">
+              <div class="dot dot--warn"></div>
+              <div class="row__main">
+                <div class="row__title">${esc(p.title)}</div>
+                <div class="row__sub">${esc(p.sub)}</div>
+              </div>
+              ${ICONS.chev}
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function screenWarehouse() {
+  return `
+    ${renderHeader('Склад')}
+    ${renderContextBar()}
+    <div class="content">
+      <div class="quick-grid">
+        <button class="quick" data-action="op:incoming"><div class="quick__icon">📥</div><div class="quick__label">Приход</div></button>
+        <button class="quick" data-action="op:outgoing"><div class="quick__icon">📤</div><div class="quick__label">Расход</div></button>
+        <button class="quick" data-action="op:scrap"><div class="quick__icon">🗑</div><div class="quick__label">В брак</div></button>
+        <button class="quick" data-action="op:move"><div class="quick__icon">🔀</div><div class="quick__label">Перекладка</div></button>
+        <button class="quick" data-action="op:inventory"><div class="quick__icon">📊</div><div class="quick__label">Инвентаризация</div></button>
+        <button class="quick" data-action="op:journal"><div class="quick__icon">📜</div><div class="quick__label">Журнал</div></button>
+      </div>
+
+      <div class="section mt-4">
+        <div class="section__head"><div class="section__title">Остатки</div></div>
+        ${MOCK_STOCK.map((s, i) => `
+          <div class="stock" data-action="stock:${i}">
+            <div class="stock__head">
+              <div class="stock__brand">${esc(s.brand)}</div>
+              <div class="stock__dim">${s.thickness} мм</div>
+            </div>
+            <div class="stock__meta mono">${esc(s.format)}</div>
+            <div class="stock__stats">
+              <div><div class="stat__val">${s.good}</div><div class="stat__lbl">Годный</div></div>
+              <div><div class="stat__val" style="color:${s.scrap ? 'var(--dang)' : 'inherit'}">${s.scrap}</div><div class="stat__lbl">Брак</div></div>
+              <div><div class="stat__val">${s.pallets}</div><div class="stat__lbl">Поддоны</div></div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function screenOrders() {
+  return `
+    ${renderHeader('Наряды')}
+    ${renderContextBar()}
+    <div class="content">
+      <div class="section">
+        <div class="section__head"><div class="section__title">Наши наряды</div></div>
+        ${MOCK_ORDERS.filter(o => o.source === 'internal').map(o => `
+          <div class="card" data-action="order:${o.id}">
+            <div class="flex between">
+              <div style="font-size:var(--f-l);font-weight:700;">#${o.id}</div>
+              <div class="tiny">${esc(o.date)}</div>
+            </div>
+            <div style="font-weight:500;margin-top:2px;">${esc(o.project)}</div>
+            <div class="mt-3">
+              <div class="flex between tiny"><span>${o.done} / ${o.total} позиций</span><span>${Math.round(o.done/o.total*100)}%</span></div>
+              <div class="progress mt-3"><div class="progress__fill" style="width:${Math.round(o.done/o.total*100)}%"></div></div>
+            </div>
+            <div class="flex mt-3" style="flex-wrap:wrap;gap:6px;">
+              ${o.stages.map(st => `
+                <span class="badge ${st.status === 'active' ? 'badge--info' : st.status === 'done' ? 'badge--ok' : ''}">
+                  ${esc(st.name)}${st.status === 'active' ? ' ' + st.progress + '%' : st.status === 'pending' ? ' — ожидает' : ''}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      ${MOCK_ORDERS.some(o => o.source === 'mes') ? `
+        <div class="section mt-4">
+          <div class="section__head">
+            <div class="section__title">MES / SLS Planning</div>
+            <div class="tiny">Источник: MES</div>
+          </div>
+          ${MOCK_ORDERS.filter(o => o.source === 'mes').map(o => `
+            <div class="card" style="border-left:3px solid var(--info);" data-action="order:${o.id}">
+              <div class="flex between">
+                <div style="font-weight:700;">${esc(o.project)}</div>
+                <div class="badge badge--info">MES</div>
+              </div>
+              <div class="tiny mt-3">${esc(o.date)} · ${o.total} позиций</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function screenOrder(id) {
+  const o = MOCK_ORDERS.find(x => x.id === +id);
+  if (!o) return renderHeader('Наряд') + `<div class="content"><div class="empty">Наряд не найден</div></div>`;
+  return `
+    ${renderHeader(`Наряд #${o.id}`, { back: true })}
+    <div class="content">
+      <div class="card">
+        <div style="font-size:var(--f-l);font-weight:700;">${esc(o.project)}</div>
+        <div class="tiny mt-3">Создан: ${esc(o.date)}${o.source === 'mes' ? ' · Источник: MES' : ''}</div>
+        <div class="mt-3">
+          <div class="flex between tiny"><span>${o.done} / ${o.total}</span><span>${Math.round(o.done/o.total*100)}%</span></div>
+          <div class="progress mt-3"><div class="progress__fill" style="width:${Math.round(o.done/o.total*100)}%"></div></div>
+        </div>
+      </div>
+
+      <div class="section mt-4">
+        <div class="section__head"><div class="section__title">Этапы</div></div>
+        ${o.stages.map(st => `
+          <div class="row">
+            <div class="dot dot--${st.status === 'active' ? 'info' : st.status === 'done' ? 'ok' : 'neutral'}"></div>
+            <div class="row__main">
+              <div class="row__title">${esc(st.name)}</div>
+              <div class="row__sub">${st.status === 'active' ? st.progress + '%' : st.status === 'done' ? 'завершён' : 'ожидает'}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="section mt-4">
+        <div class="section__head"><div class="section__title">Состав</div></div>
+        ${[1,2,3].map(i => `
+          <div class="row">
+            <div class="row__main">
+              <div class="row__title mono">DPD-00${i}</div>
+              <div class="row__sub">Z275 · 1.5 мм · × ${10 + i}</div>
+            </div>
+            <div class="flex" style="gap:4px;">
+              <span class="badge badge--ok">DXF</span>
+              <span class="badge badge--ok">PDF</span>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn--ghost" data-action="context:set:${o.id}">Сделать текущим</button>
+        <button class="btn btn--primary" data-action="order:open">Открыть</button>
+      </div>
+    </div>
+  `;
+}
+
+function screenPending() {
+  return `
+    ${renderHeader('Ожидают подтверждения', { back: true })}
+    <div class="content">
+      ${state.pending.length ? state.pending.map(p => `
+        <div class="card">
+          <div class="flex" style="gap:8px;">
+            <span class="dot dot--warn"></span>
+            <div style="flex:1;">
+              <div style="font-weight:600;">${esc(p.title)}</div>
+              <div class="muted" style="font-size:var(--f-s);margin-top:2px;">${esc(p.sub)}</div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn--ghost" data-action="pending:cancel:${p.id}">Отменить</button>
+            <button class="btn btn--primary" data-action="pending:confirm:${p.id}">Подтвердить</button>
+          </div>
+        </div>
+      `).join('') : `<div class="empty"><div class="empty__icon">✓</div>Нет ожидающих действий</div>`}
+    </div>
+  `;
+}
+
+function screenAI() {
+  return `
+    ${renderHeader('AI-диспетчер', { back: true })}
+    <div class="content">
+      <div class="chat" id="chat">
+        <div class="msg msg--ai">
+          Привет, ${esc(currentUser.name)}. Спроси про остатки, файлы, наряды или попроси выполнить действие.
+        </div>
+        <div class="msg msg--ai">
+          На складе <b>42</b> годных листа Z275 · 1.5 мм · 1250×2500.
+          <div class="msg__actions">
+            <button class="btn btn--ghost" data-action="nav:warehouse">Открыть склад</button>
+          </div>
+        </div>
+        <div class="msg msg--user">Запиши расход 12 листов на наряд #16</div>
+        <div class="msg msg--ai">
+          Готов записать расход <b>12 листов</b> Z275 · 1.5 мм · 1250×2500 с поддона Z8-01 на наряд #16.
+          <div class="confirm-delta">Годных: <b>42 → 30</b></div>
+          <div class="msg__actions">
+            <button class="btn btn--primary" data-action="confirm:outgoing">Записать расход</button>
+            <button class="btn btn--ghost" data-action="confirm:cancel">Отменить</button>
+          </div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <input placeholder="Спросить диспетчера..." data-role="chat-input" />
+        <button data-action="ai:send">→</button>
+      </div>
+    </div>
+  `;
+}
+
+function screenMore() {
+  const items = [
+    { label: 'Проекты',    action: 'nav:projects', icon: '📁' },
+    { label: 'MES',        action: 'mes',          icon: '🏭' },
+    { label: 'Люди',       action: 'people',       icon: '👥' },
+    { label: 'Табель',     action: 'timesheet',    icon: '⏱' },
+    { label: 'Заметки',    action: 'notes',        icon: '📝' },
+    { label: 'Правила цеха', action: 'rules',      icon: '📋' },
+    { label: 'Журнал',     action: 'journal',      icon: '📜' },
+    { label: 'Пробелы',    action: 'gaps',         icon: '🔍' },
+    { label: 'Пользователи', action: 'users',      icon: '👤' },
+  ];
+  return `
+    ${renderHeader('Ещё')}
+    <div class="content">
+      ${items.map(i => `
+        <div class="row" data-action="${i.action}">
+          <div style="font-size:20px;">${i.icon}</div>
+          <div class="row__main"><div class="row__title">${esc(i.label)}</div></div>
+          ${ICONS.chev}
+        </div>
+      `).join('')}
+
+      <div class="section mt-4">
+        <div class="section__title" style="margin-bottom:8px;">Демо: сменить роль</div>
+        <div class="flex" style="flex-wrap:wrap;gap:8px;">
+          ${Object.entries(MOCK_USERS).map(([k, u]) => `
+            <button class="btn ${currentUser.role === k ? 'btn--primary' : 'btn--ghost'}" style="min-height:36px;padding:0 12px;font-size:var(--f-s);" data-action="demo-role:${k}">${esc(u.roleLabel)}</button>
+          `).join('')}
+        </div>
+        <div class="tiny mt-3">Демо: роль хранится в localStorage. В проде — приходит с backend через initData.</div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   MODAL / SHEET
+   ============================================================ */
+function openSheet(html) {
+  const ov = $('#overlay');
+  ov.innerHTML = `<div class="sheet"><div class="sheet__handle"></div>${html}</div>`;
+  requestAnimationFrame(() => ov.classList.add('open'));
+}
+function closeSheet() {
+  const ov = $('#overlay');
+  ov.classList.remove('open');
+  setTimeout(() => { ov.innerHTML = ''; }, 200);
+}
+
+function showConfirmOutgoing() {
+  openSheet(`
+    <div class="sheet__title">Записать расход</div>
+    <div class="confirm-row"><span class="confirm-row__label">Материал</span><span class="confirm-row__value">Z275</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Толщина</span><span class="confirm-row__value">1.5 мм</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Формат</span><span class="confirm-row__value mono">1250 × 2500</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Количество</span><span class="confirm-row__value">12 листов</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">С поддона</span><span class="confirm-row__value mono">Z8-01</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">На</span><span class="confirm-row__value">Наряд #16</span></div>
+    <div class="confirm-delta">После операции — годных: <b>42 → 30</b></div>
+    <div class="btn-row">
+      <button class="btn btn--ghost" data-action="sheet:close">Отменить</button>
+      <button class="btn btn--primary" data-action="confirm:outgoing:final">Записать расход</button>
+    </div>
+    <div class="tiny mt-3" style="text-align:center;">BACKEND GAP: POST /api/warehouse/outgoing → создаёт pending, не выполняется сразу</div>
+  `);
+}
+
+function showDangerDelete(orderId) {
+  // double confirmation, как в боте
+  openSheet(`
+    <div class="sheet__title">Удалить наряд #${orderId}</div>
+    <div class="danger-note">
+      Вы собираетесь удалить наряд #${orderId}.<br>
+      Файлы будут перемещены в <span class="mono">_удалённые</span>.
+    </div>
+    <div class="btn-row">
+      <button class="btn btn--ghost" data-action="sheet:close">Отмена</button>
+      <button class="btn btn--dang" data-action="danger:step2:${orderId}">Удалить наряд</button>
+    </div>
+  `);
+}
+function showDangerDeleteStep2(orderId) {
+  openSheet(`
+    <div class="sheet__title">Подтверждение</div>
+    <div class="danger-note">Это действие нельзя отменить.</div>
+    <div class="btn-row">
+      <button class="btn btn--ghost" data-action="sheet:close">Отмена</button>
+      <button class="btn btn--dang" data-action="danger:confirm:${orderId}">Да, удалить наряд насовсем</button>
+    </div>
+  `);
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render() {
+  const c = $('#content');
+  const headerEl = $('#header');
+  const contextEl = $('#context');
+
+  // Экраны, которые сами рендерят header+context
+  let html = '';
+  const t = state.tab;
+  const top = state.stack[state.stack.length - 1];
+
+  if (top) {
+    if (top.name === 'order') html = screenOrder(top.id);
+    else if (top.name === 'pending') html = screenPending();
+    else if (top.name === 'ai') html = screenAI();
+    else html = screenHome();
+    headerEl.innerHTML = '';
+    contextEl.innerHTML = '';
+    c.innerHTML = html;
+  } else {
+    if (t === 'home') html = screenHome();
+    else if (t === 'warehouse') html = screenWarehouse();
+    else if (t === 'orders') html = screenOrders();
+    else if (t === 'more') html = screenMore();
+    else html = screenHome();
+    headerEl.innerHTML = '';
+    contextEl.innerHTML = '';
+    c.innerHTML = html;
+  }
+
+  $('#nav').innerHTML = renderNav();
+  $('#nav').style.display = state.stack.length ? 'none' : 'flex';
+  $('#fab').innerHTML = state.stack.length ? '' : renderFab();
+}
+
+/* ============================================================
+   NAVIGATION ACTIONS
+   ============================================================ */
+function push(screen) { state.stack.push(screen); render(); }
+function pop() { state.stack.pop(); render(); }
+function setTab(id) { state.tab = id; state.stack = []; render(); }
+
+/* ============================================================
+   EVENTS
+   ============================================================ */
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+  haptic.tap();
+
+  if (action.startsWith('tab:')) { setTab(action.slice(4)); return; }
+  if (action === 'back') { pop(); return; }
+  if (action === 'sheet:close') { closeSheet(); return; }
+
+  if (action === 'pending') { push({ name: 'pending' }); return; }
+  if (action === 'ai') { push({ name: 'ai' }); return; }
+
+  if (action.startsWith('nav:')) {
+    const dest = action.slice(4);
+    if (['home','work','warehouse','orders','more'].includes(dest)) setTab(dest);
+    else if (dest === 'pending') push({ name: 'pending' });
+    else if (dest === 'projects') setTab('more'); // demo
+    return;
+  }
+
+  if (action.startsWith('order:')) {
+    const id = action.split(':')[1];
+    if (id === 'open') return;
+    push({ name: 'order', id });
+    return;
+  }
+
+  if (action.startsWith('context:set:')) {
+    const id = +action.split(':')[2];
+    const o = MOCK_ORDERS.find(x => x.id === id);
+    state.context.order = { id: o.id, project: o.project, done: o.done, total: o.total };
+    haptic.success();
+    pop();
+    return;
+  }
+
+  if (action === 'op:outgoing') { showConfirmOutgoing(); return; }
+  if (action === 'confirm:outgoing' || action === 'confirm:outgoing:final') {
+    // BACKEND GAP: POST /api/pending/{id}/confirm
+    state.pending = state.pending.filter(p => p.id !== 'p1');
+    closeSheet();
+    haptic.success();
+    render();
+    return;
+  }
+  if (action === 'confirm:cancel') { haptic.warn(); return; }
+
+  if (action.startsWith('pending:confirm:')) {
+    const id = action.split(':')[2];
+    state.pending = state.pending.filter(p => p.id !== id);
+    haptic.success();
+    render();
+    return;
+  }
+  if (action.startsWith('pending:cancel:')) {
+    const id = action.split(':')[2];
+    state.pending = state.pending.filter(p => p.id !== id);
+    haptic.warn();
+    render();
+    return;
+  }
+
+  if (action.startsWith('demo-role:')) {
+    const role = action.split(':')[1];
+    localStorage.setItem('demo_role', role);
+    currentUser = { ...MOCK_USERS[role], tgName: currentUser.tgName };
+    state.stack = [];
+    state.tab = 'home';
+    render();
+    haptic.success();
+    return;
+  }
+
+  // Заглушки для нереализованных экранов
+  const stubs = ['mes','people','timesheet','notes','rules','journal','gaps','users','paint','checks','incoming','outgoing','scrap','move','inventory'];
+  const plain = action.replace(/^op:/, '');
+  if (stubs.includes(plain) || stubs.includes(action)) {
+    openSheet(`
+      <div class="sheet__title">${esc(plain || action)}</div>
+      <div class="muted">Экран в разработке. Логика и данные — из backend.</div>
+      <div class="btn-row"><button class="btn btn--primary btn--block" data-action="sheet:close">Понятно</button></div>
+    `);
+    return;
+  }
+});
+
+document.addEventListener('submit', (e) => e.preventDefault());
+document.addEventListener('click', (e) => {
+  if (e.target.closest('[data-action="ai:send"]')) {
+    const input = document.querySelector('[data-role="chat-input"]');
+    if (!input || !input.value.trim()) return;
+    const chat = $('#chat');
+    chat.appendChild(h('').appendChild ? h(`<div class="msg msg--user">${esc(input.value)}</div>`) : null);
+    input.value = '';
+  }
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+render();
+</script>
+</body>
+</html>
