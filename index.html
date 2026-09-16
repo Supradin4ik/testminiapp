@@ -274,7 +274,7 @@ html[data-theme="dark"] .dxf-preview{background:#0a0d11}
   .order-card{padding:var(--sp-4)}
 }
 </style>
-  <meta name="miniapp-build" content="github-pages-20260916T114625Z">
+  <meta name="miniapp-build" content="github-pages-20260916T123955Z">
   <style>.build-marker{font-size:10px;color:var(--text-3);font-variant-numeric:tabular-nums;white-space:nowrap}</style>
 </head>
 <body>
@@ -339,7 +339,7 @@ html[data-theme="dark"] .dxf-preview{background:#0a0d11}
       <button class="icon-btn menu-btn" id="menuBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
       </button>
-      <div class="crumbs"><span>Производство</span><span class="crumbs__sep">/</span><b id="crumb">Обзор</b><span class="build-marker" title="Build version">build: github-pages-20260916T114625Z</span></div>
+      <div class="crumbs"><span>Производство</span><span class="crumbs__sep">/</span><b id="crumb">Обзор</b><span class="build-marker" title="Build version">build: github-pages-20260916T123955Z</span></div>
       <div class="topbar__actions">
         <button class="icon-btn" id="searchBtn" title="Поиск">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
@@ -1243,7 +1243,7 @@ html[data-theme="dark"] .dxf-preview{background:#0a0d11}
 
 </style>
 <style data-inline-source="src/role-ux.css">
-.role-work-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin-bottom:var(--sp-4)}@media(max-width:720px){.role-work-grid{grid-template-columns:1fr 1fr}.role-work-grid .quick{min-height:76px}}
+.role-work-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin-bottom:var(--sp-4)}.preview-banner{display:flex;align-items:center;gap:8px;padding:8px var(--sp-4);background:var(--warn-bg);color:var(--warn);border-bottom:1px solid var(--border);font-size:var(--f-xs);font-weight:600}.preview-banner b{color:inherit}@media(max-width:720px){.role-work-grid{grid-template-columns:1fr 1fr}.role-work-grid .quick{min-height:76px}.preview-banner{padding:7px var(--sp-3)}}
 
 </style>
 <script data-inline-source="src/api/permissions.js">
@@ -1257,13 +1257,18 @@ html[data-theme="dark"] .dxf-preview{background:#0a0d11}
   const PRESET={owner:'system',chief:'operations',tech:'engineering',laser:'operator',bender:'worker',worker:'worker',painter:'painter',designer:'constructor'};
   let session=null;
   const roleKey=role=>Object.keys(ROLE).find(key=>ROLE[key]===role)||null;
-  const serverSections=()=>new Set(Array.isArray(session?.sections)?session.sections:[]);
-  window.MiniAppPermissions={canonical:r=>ROLE[r]||r,roleKey,setSession:x=>{session=x||null},session:()=>session,can:(r,a)=>session?(session.permissions||[]).includes(a):(ACTIONS[r]||[]).includes(a),hasSection:(r,s)=>s==='overview'||(session?serverSections().has(s):(ROOT[r]||[]).includes(s)),visibleSections:r=>session?['overview',...Array.from(serverSections())]:['overview',...(ROOT[r]||[])],actions:r=>session?[...(session.permissions||[])]:[...(ACTIONS[r]||[])],defaultScreen:r=>DEFAULT[r]||'overview',preset:r=>PRESET[r]||'worker',isDev:()=>location.hostname==='localhost'||location.protocol==='file:'};
+  // Backend returns Russian labels while the router uses stable screen ids.
+  const SECTION={'Склад':'warehouse','Проекты':'projects','Наряды':'orders','Мои наряды':'myorders','Заметки':'notes','Общий журнал':'journal','Правила':'rules','Пользователи':'users','Табель':'timesheet','MES':'mes','Краска':'paint','Мои проекты':'myprojects','Проверка':'checkup'};
+  const serverSections=()=>new Set((Array.isArray(session?.sections)?session.sections:[]).map(x=>SECTION[x]||x));
+  const isDev=()=>location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:';
+  const isPreview=()=>window.MiniAppRuntime?.isPreview?.() ?? !window.Telegram?.WebApp?.initData;
+  const isDemo=()=>isDev()||isPreview();
+  window.MiniAppPermissions={canonical:r=>ROLE[r]||r,roleKey,setSession:x=>{session=x||null},session:()=>session,can:(r,a)=>(ACTIONS[r]||[]).includes(a),hasSection:(r,s)=>s==='overview'||(session?serverSections().has(s):(ROOT[r]||[]).includes(s)),visibleSections:r=>session?['overview',...Array.from(serverSections())]:['overview',...(ROOT[r]||[])],actions:r=>[...(ACTIONS[r]||[])],defaultScreen:r=>DEFAULT[r]||'overview',preset:r=>PRESET[r]||'worker',isDev,isPreview,isDemo};
 }());
 
 </script>
 <script data-inline-source="src/runtime-config.js">
-window.MINIAPP_CONFIG={API_MODE:'real',API_BASE_URL:'https://arguable-wharf-hydroxide.ngrok-free.dev',BUILD_VERSION:'github-pages-20260916T114625Z'};
+window.MINIAPP_CONFIG={API_MODE:'real',API_BASE_URL:'https://arguable-wharf-hydroxide.ngrok-free.dev',BUILD_VERSION:'github-pages-20260916T123955Z'};window.MiniAppRuntime=window.MiniAppRuntime||(()=>{const hasTelegramInitData=()=>Boolean(window.Telegram?.WebApp?.initData);return{hasTelegramInitData,isTelegram:hasTelegramInitData,isPreview:()=>!hasTelegramInitData(),dataMode:()=>window.MINIAPP_CONFIG?.API_MODE==='real'&&hasTelegramInitData()?'real':'mock'}})();
 </script>
 <script data-inline-source="src/api/miniapp-api.js">
 (function () {
@@ -1361,9 +1366,9 @@ window.MINIAPP_CONFIG={API_MODE:'real',API_BASE_URL:'https://arguable-wharf-hydr
 </script>
 <script data-inline-source="src/api/real-api.js">
 (function(){'use strict';
- const cfg=()=>window.MINIAPP_CONFIG||{}, real=()=>cfg().API_MODE==='real';
+ const cfg=()=>window.MINIAPP_CONFIG||{}, real=()=>cfg().API_MODE==='real'&&Boolean(window.MiniAppRuntime?.isTelegram?.());
  const init=()=>window.Telegram?.WebApp?.initData||'';
- async function api(path){const base=String(cfg().API_BASE_URL||'').replace(/\/$/,'');const r=await fetch(base+path,{headers:{'X-Telegram-Init-Data':init(),'X-Request-Id':crypto.randomUUID?.()||String(Date.now()),'ngrok-skip-browser-warning':'1'}});if(!r.ok)throw new Error((await r.json().catch(()=>({}))).detail||`Backend error ${r.status}`);return r.json()}
+ async function api(path){const base=String(cfg().API_BASE_URL||'').replace(/\/$/,'');let r;try{r=await fetch(base+path,{headers:{'X-Telegram-Init-Data':init(),'X-Request-Id':crypto.randomUUID?.()||String(Date.now()),'ngrok-skip-browser-warning':'1'}})}catch(cause){const err=new Error('Backend unavailable');err.kind='unavailable';err.cause=cause;throw err}if(!r.ok){const err=new Error((await r.json().catch(()=>({}))).detail||`Backend error ${r.status}`);err.status=r.status;err.kind=r.status===401?'unauthorized':r.status===403?'forbidden':'api';throw err}return r.json()}
  window.MiniAppRealApi={enabled:real,health:()=>api('/api/health'),me:()=>api('/api/me'),orders:async()=>{const x=await api('/api/orders');return (x.orders||[]).map(o=>({id:o.id,project:o.проект||'',launch:o.запуск||'',done:Number(o.сделано||0),total:Number(o.позиций||0),assignee:o.исполнитель||null,age:o.дата_создания||'',status:o.состояние==='активен'?'in_progress':o.состояние,issues:[],created:o.дата_создания||'',kits:Number(o.комплектов||1),version:'',folder:o.папка||''}))}};
  const old=window.MiniAppApi?.getOrders;if(old)window.MiniAppApi.getOrders=async()=>{try{return real()?await window.MiniAppRealApi.orders():await old()}catch(err){window.MiniAppBackendError=err.message;return []}};
 }());
@@ -1935,29 +1940,21 @@ applyRole('owner');
 goto('overview');
 </script>
 <script data-inline-source="src/role-ux.js">
-(function(){'use strict';const P=()=>window.MiniAppPermissions,esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+(function(){'use strict';
+ const P=()=>window.MiniAppPermissions,esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  function denied(page){const n=document.querySelector(`[data-page="${page}"]`);if(n)n.innerHTML=`<h1 class="page__title">Нет доступа</h1><div class="error-state">Этот раздел недоступен для вашей роли.<br><button class="btn btn--sm" data-nav="${P().defaultScreen(window.currentRole)}">Вернуться к работе</button></div>`}
- function dashboard(){const n=document.querySelector('[data-page="overview"]'),r=window.currentRole;if(!n)return;const data={chief:['Операции сегодня','Активные работы, проблемы и команда','Наряды в работе','Табель команды','Общий журнал'],tech:['Подготовка производства','Проекты, спецификации, файлы и потребность в материале','Проекты','Спецификации с проблемами','Внутренние наряды'],laser:['Моя смена','Рабочие задания, файлы и факт производства','Мои наряды','Открыть файлы','Табель'],bender:['Моя смена','Только задачи, чертежи и факт','Мои наряды','Отметить факт','Табель'],worker:['Моя смена','Только необходимые рабочие действия','Мои наряды','Отметить факт','Табель'],painter:['Моя смена','Краска будет добавлена отдельной фазой','Табель','Paint пока недоступен',''],designer:['Мои проекты','Проверки и файлы своих проектов','Мои проекты','Проверка','']}[r];if(!data)return;n.innerHTML=`<h1 class="page__title">${esc(data[0])}</h1><p class="page__sub">${esc(data[1])}</p><div class="role-work-grid">${data.slice(2).filter(Boolean).map((x,i)=>`<button class="quick" data-nav="${({'Мои наряды':'myorders','Табель':'timesheet','Проекты':'projects','Спецификации с проблемами':'projects','Внутренние наряды':'orders','Наряды в работе':'orders','Табель команды':'timesheet','Общий журнал':'journal','Мои проекты':'myprojects','Проверка':'checkup','Открыть файлы':'myorders','Отметить факт':'myorders'})[x]||'timesheet'}"><div class="quick__icon">${['◷','▤','✓'][i]||'•'}</div><div class="quick__label">${esc(x)}</div></button>`).join('')}</div><div class="card"><div class="card__body"><div class="source-note">Роль: ${esc(P().canonical(r))}. Доступные действия проверяются сервером.</div></div></div>`}
+ function previewBanner(){let n=document.getElementById('previewBanner');if(P().isPreview()){if(!n){n=document.createElement('div');n.id='previewBanner';n.className='preview-banner';n.innerHTML='<b>Предпросмотр</b> · демо-данные, без записи в production. Для реального доступа откройте Mini App из Telegram.';document.querySelector('.topbar')?.insertAdjacentElement('afterend',n)}}else n?.remove()}
+ function dashboard(){const n=document.querySelector('[data-page="overview"]'),r=window.currentRole;if(!n||r==='owner')return;const data={chief:['Операции сегодня','Активные работы, проблемы и команда','Наряды в работе','Табель команды','Общий журнал'],tech:['Подготовка производства','Проекты, спецификации, файлы и потребность в материале','Проекты','Спецификации с проблемами','Внутренние наряды'],laser:['Моя смена','Рабочие задания, файлы и факт производства','Мои наряды','Открыть файлы','Табель'],bender:['Моя смена','Только задачи, чертежи и факт','Мои наряды','Отметить факт','Табель'],worker:['Моя смена','Только необходимые рабочие действия','Мои наряды','Отметить факт','Табель'],painter:['Моя смена','Краска будет добавлена отдельной фазой','Табель','Paint пока недоступен',''],designer:['Мои проекты','Проверки и файлы своих проектов','Мои проекты','Проверка','']}[r];if(!data)return;n.innerHTML=`<h1 class="page__title">${esc(data[0])}</h1><p class="page__sub">${esc(data[1])}</p><div class="role-work-grid">${data.slice(2).filter(Boolean).map((x,i)=>`<button class="quick" data-nav="${({'Мои наряды':'myorders','Табель':'timesheet','Проекты':'projects','Спецификации с проблемами':'projects','Внутренние наряды':'orders','Наряды в работе':'orders','Табель команды':'timesheet','Общий журнал':'journal','Мои проекты':'myprojects','Проверка':'checkup','Открыть файлы':'myorders','Отметить факт':'myorders'})[x]||'timesheet'}"><div class="quick__icon">${['◷','▤','✓'][i]||'•'}</div><div class="quick__label">${esc(x)}</div></button>`).join('')}</div><div class="card"><div class="card__body"><div class="source-note">Роль: ${esc(P().canonical(r))}. Доступные действия проверяются сервером.</div></div></div>`}
+ function productionError(err){const n=document.querySelector('[data-page="overview"]');if(!n)return;const state=err?.kind==='unavailable'?['Сервер производства недоступен.','Не удалось соединиться с backend. Проверьте подключение и повторите попытку.']:err?.kind==='unauthorized'?['Не удалось подтвердить вход в Telegram.','Закройте Mini App и откройте его из Telegram ещё раз.']:err?.kind==='forbidden'?['Нет доступа.','Ваш Telegram-пользователь не имеет доступа к этому разделу.']:['Ошибка API производства.','Сервер ответил с ошибкой. Повторите попытку позже.'];n.innerHTML=`<h1 class="page__title">${state[0]}</h1><p class="page__sub">${state[1]}</p><button class="btn btn--primary" type="button" onclick="location.reload()">Повторить</button>`}
  const originalGoto=window.goto;window.goto=function(page){if(!P().hasSection(window.currentRole||'owner',page)){denied(page);originalGoto(page);return}originalGoto(page)};
- const originalApply=window.applyRole;window.applyRole=function(role){if(!P().isDev()&&role!==window.currentRole)return;originalApply(role);if(!P().isDev())document.querySelector('#roleSwitcher')?.closest('.card')?.remove();dashboard();};
+ const originalApply=window.applyRole;window.applyRole=function(role){if(!P().isDemo()&&role!==window.currentRole)return;originalApply(role);if(!P().isDemo())document.querySelector('#roleSwitcher')?.closest('.card')?.remove();dashboard();previewBanner()};
  document.addEventListener('click',e=>{const nav=e.target.closest('[data-nav]');if(nav&&!P().hasSection(window.currentRole||'owner',nav.dataset.nav)){e.preventDefault();e.stopImmediatePropagation();denied(nav.dataset.nav);originalGoto(nav.dataset.nav)}});
- const q=new URLSearchParams(location.search).get('demoRole');if(q&&P().isDev()&&P().visibleSections(q).length)window.applyRole(q);else{if(!P().isDev())document.querySelector('#roleSwitcher')?.closest('.card')?.remove();dashboard()}
- async function loadProductionSession(){
-   if(P().isDev()||!window.MiniAppRealApi?.enabled?.())return;
-   try{
-     const session=await window.MiniAppRealApi.me();
-     const role=P().roleKey(session.role);
-     if(!role)throw new Error('Unknown production role');
-     P().setSession(session);
-     originalApply(role);
-     dashboard();
-     document.querySelectorAll('[data-nav]').forEach(node=>node.hidden=!P().hasSection(role,node.dataset.nav));
-   }catch(err){
-     const page=document.querySelector('[data-page="overview"]');
-     if(page)page.innerHTML='<h1 class="page__title">Сервер производства сейчас недоступен.</h1><p class="page__sub">Не удалось подтвердить доступ. Проверьте подключение и повторите попытку.</p><button class="btn btn--primary" type="button" onclick="location.reload()">Повторить</button>';
-   }
- }
+ const params=new URLSearchParams(location.search),q=params.get('demoRole');if(q&&P().isDemo()&&P().visibleSections(q).length)window.applyRole(q);else{if(!P().isDemo())document.querySelector('#roleSwitcher')?.closest('.card')?.remove();dashboard();previewBanner()}
+ async function loadProductionSession(){if(P().isPreview())return;if(!window.MiniAppRealApi?.enabled?.()){productionError({kind:'unauthorized'});return}try{const session=await window.MiniAppRealApi.me();const role=P().roleKey(session.role);if(!role)throw Object.assign(new Error('Unknown production role'),{kind:'api'});P().setSession(session);originalApply(role);const user=session.user||{};if(user.name)document.getElementById('userName').textContent=user.name;dashboard();document.querySelectorAll('[data-nav]').forEach(node=>node.hidden=!P().hasSection(role,node.dataset.nav))}catch(err){productionError(err)}}
  loadProductionSession();
+ // Preview-only route is intentionally opt-in and helps review a single screen
+ // without inventing a production session.
+ const previewScreen=params.get('demoScreen');if(P().isDemo()&&previewScreen)setTimeout(()=>window.goto?.(previewScreen),250);
 }());
 
 </script>
