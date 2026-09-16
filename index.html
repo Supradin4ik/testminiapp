@@ -18,6 +18,7 @@
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
   --f-xs:11px; --f-s:13px; --f-m:14px; --f-l:16px; --f-xl:22px; --f-2xl:28px;
   --sidebar-w:240px; --header-h:56px; --nav-h:60px;
+  --safe-top:env(safe-area-inset-top,0px); --safe-bottom:env(safe-area-inset-bottom,0px);
 }
 html[data-theme="dark"]{
   --bg:#0e1116; --surface:#161b22; --surface-2:#1a2029;
@@ -30,13 +31,13 @@ html[data-theme="dark"]{
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%;overscroll-behavior-y:none}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;font-size:var(--f-m);line-height:1.45;-webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;font-size:var(--f-m);line-height:1.45;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 input,textarea{font:inherit;color:inherit}
 .app{display:flex;min-height:100vh}
 
-/* ========== SIDEBAR ========== */
-.sidebar{width:var(--sidebar-w);background:var(--sidebar);color:var(--sidebar-tx);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;padding:var(--sp-5) 0 var(--sp-4);z-index:30;overflow-y:auto}
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar);color:var(--sidebar-tx);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;padding:calc(var(--sp-5) + var(--safe-top)) 0 var(--sp-4);z-index:30;overflow-y:auto}
 .brand{padding:0 var(--sp-5) var(--sp-6);font-weight:800;font-size:17px;letter-spacing:.02em}
 .brand span{color:var(--sidebar-mut);font-weight:500}
 .nav-group{padding:0 var(--sp-3);margin-bottom:var(--sp-4)}
@@ -44,8 +45,7 @@ input,textarea{font:inherit;color:inherit}
 .nav-item{display:flex;align-items:center;gap:var(--sp-3);padding:9px var(--sp-3);border-radius:var(--r-s);font-size:var(--f-s);color:var(--sidebar-tx);width:100%;text-align:left;transition:background .12s;min-height:38px}
 .nav-item:hover{background:var(--sidebar-2)}
 .nav-item.active{background:var(--sidebar-2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-.nav-item__icon{width:16px;height:16px;flex-shrink:0;display:grid;place-items:center;opacity:.85;font-size:14px}
-.nav-item__icon svg{width:15px;height:15px}
+.nav-item__icon{width:16px;height:16px;flex-shrink:0;display:grid;place-items:center;opacity:.9;font-size:14px}
 .nav-item__badge{margin-left:auto;background:#e3b341;color:#111;font-size:10px;font-weight:700;min-width:16px;height:16px;border-radius:100px;display:grid;place-items:center;padding:0 4px}
 .sidebar__spacer{flex:1}
 .user{margin:0 var(--sp-3);padding:var(--sp-3);display:flex;align-items:center;gap:var(--sp-3);border-top:1px solid rgba(255,255,255,.07);padding-top:var(--sp-4);margin-top:var(--sp-2)}
@@ -53,23 +53,24 @@ input,textarea{font:inherit;color:inherit}
 .user__name{font-size:var(--f-s);font-weight:600}
 .user__role{font-size:var(--f-xs);color:var(--sidebar-mut)}
 
-/* ========== MAIN ========== */
-.main{flex:1;margin-left:var(--sidebar-w);min-width:0;display:flex;flex-direction:column}
-.topbar{height:var(--header-h);display:flex;align-items:center;gap:var(--sp-4);padding:0 var(--sp-6);background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
-.crumbs{font-size:var(--f-s);color:var(--text-2);display:flex;gap:6px;align-items:center}
-.crumbs b{color:var(--text);font-weight:600}
+/* MAIN */
+.main{flex:1;margin-left:var(--sidebar-w);min-width:0;display:flex;flex-direction:column;padding-bottom:var(--safe-bottom)}
+.topbar{height:calc(var(--header-h) + var(--safe-top));padding:var(--safe-top) var(--sp-6) 0;display:flex;align-items:center;gap:var(--sp-4);background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.crumbs{font-size:var(--f-s);color:var(--text-2);display:flex;gap:6px;align-items:center;min-width:0;overflow:hidden}
+.crumbs b{color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .crumbs__sep{color:var(--text-3)}
-.topbar__actions{margin-left:auto;display:flex;gap:var(--sp-2);align-items:center}
+.topbar__actions{margin-left:auto;display:flex;gap:var(--sp-2);align-items:center;flex-shrink:0}
 .icon-btn{position:relative;width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--border);border-radius:var(--r-s);color:var(--text-2);background:var(--surface);transition:background .12s}
 .icon-btn:hover{background:var(--surface-2)}
 .icon-btn svg{width:15px;height:15px}
 .icon-btn__badge{position:absolute;top:-4px;right:-4px;background:var(--dang);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:100px;display:grid;place-items:center;padding:0 4px}
 
-.context-bar{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-6);background:var(--surface-2);border-bottom:1px solid var(--border-2);font-size:var(--f-s);color:var(--text-2);cursor:pointer;transition:background .12s}
-.context-bar:hover{background:var(--border-2)}
-.context-bar__chip{display:flex;align-items:center;gap:6px;padding:3px 10px;background:var(--surface);border:1px solid var(--border);border-radius:100px;white-space:nowrap}
+.context-bar{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-6);background:var(--surface-2);border-bottom:1px solid var(--border-2);font-size:var(--f-s);color:var(--text-2);overflow-x:auto;white-space:nowrap;scrollbar-width:none}
+.context-bar::-webkit-scrollbar{display:none}
+.context-bar__chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:var(--surface);border:1px solid var(--border);border-radius:100px;cursor:pointer;flex-shrink:0}
+.context-bar__chip:hover{border-color:var(--accent)}
 .context-bar b{color:var(--text);font-weight:600}
-.context-bar__close{margin-left:auto;color:var(--text-3);padding:2px 6px;font-size:16px;line-height:1}
+.context-bar__close{margin-left:auto;color:var(--text-3);padding:2px 8px;font-size:16px;line-height:1;flex-shrink:0;position:sticky;right:0;background:var(--surface-2)}
 
 .page{padding:var(--sp-6) var(--sp-6) var(--sp-8);display:none}
 .page.active{display:block}
@@ -88,9 +89,9 @@ input,textarea{font:inherit;color:inherit}
 /* CARD */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-m);overflow:hidden}
 .card+.card{margin-top:var(--sp-4)}
-.card__head{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-4) var(--sp-5);border-bottom:1px solid var(--border-2)}
+.card__head{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-4) var(--sp-5);border-bottom:1px solid var(--border-2);flex-wrap:wrap}
 .card__title{font-size:var(--f-l);font-weight:600}
-.card__actions{margin-left:auto;display:flex;gap:var(--sp-2);align-items:center}
+.card__actions{margin-left:auto;display:flex;gap:var(--sp-2);align-items:center;flex-wrap:wrap}
 .card__body{padding:var(--sp-5)}
 
 /* BTN */
@@ -102,6 +103,7 @@ input,textarea{font:inherit;color:inherit}
 .btn--ghost{background:transparent}
 .btn--dang{background:var(--dang);color:#fff;border-color:var(--dang)}
 .btn--sm{height:30px;font-size:var(--f-xs);padding:0 10px}
+.btn--lg{height:48px;font-size:var(--f-m)}
 .btn--block{width:100%}
 
 /* ATTENTION */
@@ -122,7 +124,7 @@ input,textarea{font:inherit;color:inherit}
 .row__title{font-weight:600;font-size:var(--f-s)}
 .row__sub{font-size:var(--f-xs);color:var(--text-3);margin-top:2px}
 .row__chev{color:var(--text-3);flex-shrink:0}
-.row__icon{font-size:18px;flex-shrink:0}
+.row__icon{font-size:18px;flex-shrink:0;width:24px;text-align:center}
 
 /* TABLE */
 .table-wrap{overflow-x:auto}
@@ -187,19 +189,19 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .msg--ai{align-self:flex-start;background:var(--surface-2);border:1px solid var(--border);border-bottom-left-radius:4px}
 .msg__actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .chat-input{display:flex;gap:8px;padding:var(--sp-4);border-top:1px solid var(--border-2);background:var(--surface)}
-.chat-input input{flex:1;height:38px;padding:0 12px;border:1px solid var(--border);border-radius:6px;outline:none;background:var(--surface-2)}
+.chat-input input{flex:1;height:38px;padding:0 12px;border:1px solid var(--border);border-radius:6px;outline:none;background:var(--surface-2);min-width:0}
 
 /* SHEET */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;z-index:100}
 .overlay.open{opacity:1;pointer-events:auto}
-.sheet{width:100%;max-width:720px;background:var(--surface);border-radius:var(--r-l) var(--r-l) 0 0;padding:var(--sp-5);padding-bottom:calc(var(--sp-5) + env(safe-area-inset-bottom));max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.sheet{width:100%;max-width:720px;background:var(--surface);border-radius:var(--r-l) var(--r-l) 0 0;padding:var(--sp-5);padding-bottom:calc(var(--sp-5) + var(--safe-bottom));max-height:90vh;overflow-y:auto;transform:translateY(100%);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
 .overlay.open .sheet{transform:translateY(0)}
 .sheet__handle{width:36px;height:4px;border-radius:100px;background:var(--border);margin:0 auto var(--sp-4)}
 .sheet__title{font-size:var(--f-xl);font-weight:600;margin-bottom:var(--sp-4)}
 .confirm-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-2);font-size:var(--f-s);gap:12px}
 .confirm-row:last-of-type{border-bottom:none}
 .confirm-row__label{color:var(--text-2);flex-shrink:0}
-.confirm-row__value{font-weight:600;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.confirm-row__value{font-weight:600;text-align:right;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-word}
 .confirm-delta{margin-top:12px;padding:12px;background:var(--surface-2);border-radius:var(--r-s);font-size:var(--f-s);color:var(--text-2)}
 .confirm-delta b{color:var(--text)}
 .danger-note{padding:12px;background:var(--dang-bg);border:1px solid var(--dang);border-radius:6px;color:var(--dang);font-size:var(--f-s);margin-bottom:16px}
@@ -207,22 +209,40 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .btn-row{display:flex;gap:8px;margin-top:16px}
 .btn-row .btn{flex:1}
 
+/* EMPTY */
+.empty{text-align:center;padding:var(--sp-8) var(--sp-4);color:var(--text-2);font-size:var(--f-s)}
+.empty__icon{font-size:32px;margin-bottom:var(--sp-3);opacity:.4}
+
 /* MOBILE NAV */
-.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:40;padding-bottom:env(safe-area-inset-bottom)}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:40;padding-bottom:var(--safe-bottom)}
 .mobile-nav__items{display:flex}
-.mobile-nav__item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px;font-size:10px;color:var(--text-3);min-height:56px;cursor:pointer;transition:color .12s}
+.mobile-nav__item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 4px;font-size:10px;color:var(--text-3);min-height:56px;cursor:pointer;transition:color .12s;position:relative}
 .mobile-nav__item.active{color:var(--accent)}
 .mobile-nav__item svg{width:22px;height:22px}
 .mobile-nav__item span{font-weight:500}
+.mobile-nav__badge{position:absolute;top:4px;right:calc(50% - 18px);background:var(--dang);color:#fff;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:100px;display:grid;place-items:center;padding:0 4px}
 
-/* BACKDROP */
 .sidebar-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:29;opacity:0;pointer-events:none;transition:opacity .2s}
 .sidebar-backdrop.open{opacity:1;pointer-events:auto}
-
-/* MENU BTN */
 .menu-btn{display:none}
 
-/* RESPONSIVE */
+/* ROLE SWITCHER */
+.role-switcher{display:flex;gap:6px;flex-wrap:wrap;padding:12px 0}
+.role-chip{padding:6px 12px;border-radius:100px;font-size:var(--f-xs);font-weight:600;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .12s}
+.role-chip.active{background:var(--text);color:var(--surface);border-color:var(--text)}
+.role-chip:hover:not(.active){background:var(--surface-2)}
+
+/* DXF PREVIEW */
+.dxf-preview{background:#fafbfc;border:1px solid var(--border);border-radius:var(--r-s);padding:24px;text-align:center;margin-bottom:16px;position:relative;min-height:200px;display:flex;align-items:center;justify-content:center}
+html[data-theme="dark"] .dxf-preview{background:#0a0d11}
+.dxf-preview svg{max-width:100%;height:auto}
+
+/* TAB BAR */
+.tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:var(--sp-4);overflow-x:auto;scrollbar-width:none}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab{white-space:nowrap;padding:var(--sp-3) var(--sp-4);font-size:var(--f-s);font-weight:500;color:var(--text-2);border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer}
+.tab.active{color:var(--text);border-bottom-color:var(--text);font-weight:600}
+
 @media (max-width:960px){
   .kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .quick-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -230,8 +250,8 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 @media (max-width:720px){
   .sidebar{transform:translateX(-100%);transition:transform .2s}
   .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom))}
-  .topbar{padding:0 var(--sp-4)}
+  .main{margin-left:0;padding-bottom:calc(var(--nav-h) + var(--safe-bottom))}
+  .topbar{padding:var(--safe-top) var(--sp-4) 0}
   .context-bar{padding:var(--sp-2) var(--sp-4)}
   .page{padding:var(--sp-4) var(--sp-4) var(--sp-6)}
   .kpi-grid,.kpi-grid--3{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-3)}
@@ -242,11 +262,16 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
   .mobile-nav{display:block}
   .menu-btn{display:grid}
   .page__title{font-size:var(--f-xl)}
-  .sheet{padding:var(--sp-4);padding-bottom:calc(var(--sp-5) + env(safe-area-inset-bottom))}
+  .sheet{padding:var(--sp-4);padding-bottom:calc(var(--sp-5) + var(--safe-bottom))}
 }
 @media (max-width:480px){
   .quick-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .kpi-grid,.kpi-grid--3{grid-template-columns:1fr 1fr}
+  .card__head{padding:var(--sp-3) var(--sp-4)}
+  .card__body{padding:var(--sp-4)}
+  .row{padding:var(--sp-3) var(--sp-4)}
+  .attention{padding:var(--sp-3) var(--sp-4)}
+  .order-card{padding:var(--sp-4)}
 }
 </style>
 </head>
@@ -255,47 +280,51 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 <div class="sidebar-backdrop" id="backdrop"></div>
 
 <div class="app">
-
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
     <div class="brand">PRODUCTION <span>OS</span></div>
 
-    <div class="nav-group">
+    <div class="nav-group" data-role-group="overview">
       <button class="nav-item active" data-nav="overview"><span class="nav-item__icon">▲</span> Обзор</button>
     </div>
 
     <div class="nav-group">
       <div class="nav-group__label">Работа</div>
-      <button class="nav-item" data-nav="warehouse"><span class="nav-item__icon">▣</span> Склад</button>
-      <button class="nav-item" data-nav="orders"><span class="nav-item__icon">☰</span> Наряды</button>
-      <button class="nav-item" data-nav="myorders"><span class="nav-item__icon">🔧</span> Мои наряды</button>
-      <button class="nav-item" data-nav="projects"><span class="nav-item__icon">📁</span> Проекты</button>
-      <button class="nav-item" data-nav="paint"><span class="nav-item__icon">🎨</span> Краска</button>
-      <button class="nav-item" data-nav="mes"><span class="nav-item__icon">🏭</span> MES</button>
+      <button class="nav-item" data-nav="warehouse" data-role="owner,chief,tech,laser"><span class="nav-item__icon">▣</span> Склад</button>
+      <button class="nav-item" data-nav="orders" data-role="owner,chief,tech"><span class="nav-item__icon">☰</span> Наряды</button>
+      <button class="nav-item" data-nav="myorders" data-role="owner,chief,laser,bender,worker"><span class="nav-item__icon">🔧</span> Мои наряды</button>
+      <button class="nav-item" data-nav="projects" data-role="owner,chief,tech"><span class="nav-item__icon">📁</span> Проекты</button>
+      <button class="nav-item" data-nav="myprojects" data-role="designer"><span class="nav-item__icon">📁</span> Мои проекты</button>
+      <button class="nav-item" data-nav="checkup" data-role="designer"><span class="nav-item__icon">✓</span> Проверка</button>
+      <button class="nav-item" data-nav="paint" data-role="owner,chief,tech,painter"><span class="nav-item__icon">🎨</span> Краска</button>
+      <button class="nav-item" data-nav="mes" data-role="owner"><span class="nav-item__icon">🏭</span> MES</button>
+      <button class="nav-item" data-nav="shipplan" data-role="owner,chief,tech"><span class="nav-item__icon">📅</span> План</button>
     </div>
 
     <div class="nav-group">
       <div class="nav-group__label">Команда</div>
-      <button class="nav-item" data-nav="journal"><span class="nav-item__icon">≡</span> Общий журнал</button>
+      <button class="nav-item" data-nav="journal" data-role="owner,chief"><span class="nav-item__icon">≡</span> Общий журнал</button>
       <button class="nav-item" data-nav="timesheet"><span class="nav-item__icon">◷</span> Табель</button>
-      <button class="nav-item" data-nav="notes"><span class="nav-item__icon">🗒</span> Заметки</button>
-      <button class="nav-item" data-nav="rules"><span class="nav-item__icon">⊙</span> Правила</button>
-      <button class="nav-item" data-nav="users"><span class="nav-item__icon">👤</span> Пользователи</button>
-      <button class="nav-item" data-nav="gaps"><span class="nav-item__icon">🕳</span> Чего не хватает</button>
+      <button class="nav-item" data-nav="notes" data-role="owner,tech"><span class="nav-item__icon">🗒</span> Заметки</button>
+      <button class="nav-item" data-nav="rules" data-role="owner,chief,tech"><span class="nav-item__icon">⊙</span> Правила</button>
+      <button class="nav-item" data-nav="users" data-role="owner"><span class="nav-item__icon">👤</span> Пользователи</button>
+      <button class="nav-item" data-nav="gaps" data-role="owner"><span class="nav-item__icon">🕳</span> Чего не хватает</button>
+      <button class="nav-item" data-nav="reports" data-role="owner,chief,tech"><span class="nav-item__icon">📊</span> Отчёты</button>
+      <button class="nav-item" data-nav="notices" data-role="owner,chief,tech,laser"><span class="nav-item__icon">🔔</span> Уведомления <span class="nav-item__badge">2</span></button>
     </div>
 
     <div class="nav-group">
       <div class="nav-group__label">Система</div>
-      <button class="nav-item" data-nav="pending"><span class="nav-item__icon">⏳</span> Подтверждения <span class="nav-item__badge" id="pendingBadge">3</span></button>
-      <button class="nav-item" data-nav="ai"><span class="nav-item__icon">✦</span> AI-диспетчер</button>
-      <button class="nav-item" data-nav="service"><span class="nav-item__icon">🧹</span> Обслуживание</button>
+      <button class="nav-item" data-nav="pending" data-role="owner,chief,tech,laser"><span class="nav-item__icon">⏳</span> Подтверждения <span class="nav-item__badge" id="pendingBadge">3</span></button>
+      <button class="nav-item" data-nav="ai" data-role="owner"><span class="nav-item__icon">✦</span> AI-диспетчер</button>
+      <button class="nav-item" data-nav="service" data-role="owner"><span class="nav-item__icon">🧹</span> Обслуживание</button>
     </div>
 
     <div class="sidebar__spacer"></div>
 
     <div class="user">
       <div class="user__avatar" id="userAvatar">ДВ</div>
-      <div>
+      <div style="min-width:0;">
         <div class="user__name" id="userName">Данил</div>
         <div class="user__role" id="userRole">Владелец</div>
       </div>
@@ -310,10 +339,10 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
       </button>
       <div class="crumbs"><span>Производство</span><span class="crumbs__sep">/</span><b id="crumb">Обзор</b></div>
       <div class="topbar__actions">
-        <button class="icon-btn" title="Поиск" data-action="search">
+        <button class="icon-btn" id="searchBtn" title="Поиск">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.65" y2="16.65"/></svg>
         </button>
-        <button class="icon-btn" title="Подтверждения" data-nav="pending">
+        <button class="icon-btn" data-nav="pending" title="Подтверждения">
           <span style="font-size:16px;">⏳</span>
           <span class="icon-btn__badge" id="pendingBadgeTop">3</span>
         </button>
@@ -323,11 +352,11 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
       </div>
     </div>
 
-    <!-- CONTEXT BAR (динамический) -->
+    <!-- CONTEXT BAR -->
     <div class="context-bar" id="contextBar" style="display:none;">
-      <div class="context-bar__chip">📋 Наряд <b>#16</b></div>
-      <div class="context-bar__chip">📁 Проект <b>DPD Baltic V2 Pilot</b></div>
-      <button class="context-bar__close" title="Сбросить">×</button>
+      <div class="context-bar__chip" data-nav="order-detail">📋 Наряд <b>#16</b></div>
+      <div class="context-bar__chip" data-nav="projects">📁 Проект <b>DPD Baltic V2 Pilot</b></div>
+      <button class="context-bar__close" id="contextClear" title="Сбросить">×</button>
     </div>
 
     <!-- ============ OVERVIEW ============ -->
@@ -344,7 +373,7 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 
       <div class="card">
         <div class="card__head"><div class="card__title">Требует внимания</div></div>
-        <div style="padding:4px 0;">
+        <div>
           <div class="attention" data-nav="pending">
             <span class="attention__icon">⏳</span>
             <div class="attention__main">
@@ -452,6 +481,21 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
           </div>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card__head"><div class="card__title">Сменить роль (демо)</div></div>
+        <div class="card__body">
+          <div class="role-switcher" id="roleSwitcher">
+            <button class="role-chip active" data-role="owner">Владелец</button>
+            <button class="role-chip" data-role="chief">Нач. пр.</button>
+            <button class="role-chip" data-role="tech">Технолог</button>
+            <button class="role-chip" data-role="laser">Лазерщик</button>
+            <button class="role-chip" data-role="bender">Гибщик</button>
+            <button class="role-chip" data-role="painter">Маляр</button>
+            <button class="role-chip" data-role="designer">Конструктор</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ============ WAREHOUSE ============ -->
@@ -504,12 +548,12 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
       </div>
 
       <div class="card">
-        <div class="card__head"><div class="card__title">Поддоны · Z275 · 1.5 мм</div></div>
+        <div class="card__head"><div class="card__title">Поддоны · Z275 · 1.5 мм</div><div class="card__actions"><button class="btn btn--sm">Все поддоны</button></div></div>
         <div>
-          <div class="row"><span class="row__icon">📦</span><div class="row__main"><div class="row__title">Z8-01</div><div class="row__sub">12 листов · Z275 · 1.5 мм · 1250×2500</div></div><span class="row__chev">›</span></div>
-          <div class="row"><span class="row__icon">📦</span><div class="row__main"><div class="row__title">Z8-02</div><div class="row__sub">8 листов · Z275 · 1.5 мм · 1250×2500</div></div><span class="row__chev">›</span></div>
-          <div class="row"><span class="row__icon">📦</span><div class="row__main"><div class="row__title">M-03 <span class="badge badge--warn" style="margin-left:6px;">СМЕШАННЫЙ</span></div><div class="row__sub">3 позиции · 22 листа</div></div><span class="row__chev">›</span></div>
-          <div class="row"><span class="row__icon">🗑</span><div class="row__main"><div class="row__title">Z15-BR-01 <span class="badge badge--dang" style="margin-left:6px;">БРАК</span></div><div class="row__sub">3 листа · Z275 · 1.5 мм</div></div><span class="row__chev">›</span></div>
+          <div class="row" data-pallet="Z8-01"><span class="row__icon">📦</span><div class="row__main"><div class="row__title">Z8-01</div><div class="row__sub">12 листов · Z275 · 1.5 мм · 1250×2500</div></div><span class="row__chev">›</span></div>
+          <div class="row" data-pallet="Z8-02"><span class="row__icon">📦</span><div class="row__main"><div class="row__title">Z8-02</div><div class="row__sub">8 листов · Z275 · 1.5 мм · 1250×2500</div></div><span class="row__chev">›</span></div>
+          <div class="row" data-pallet="M-03"><span class="row__icon">📦</span><div class="row__main"><div class="row__title">M-03 <span class="badge badge--warn" style="margin-left:6px;">СМЕШАННЫЙ</span></div><div class="row__sub">3 позиции · 22 листа</div></div><span class="row__chev">›</span></div>
+          <div class="row" data-pallet="Z15-BR-01"><span class="row__icon">🗑</span><div class="row__main"><div class="row__title">Z15-BR-01 <span class="badge badge--dang" style="margin-left:6px;">БРАК</span></div><div class="row__sub">3 листа · Z275 · 1.5 мм</div></div><span class="row__chev">›</span></div>
         </div>
       </div>
     </div>
@@ -558,15 +602,15 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
           <div class="card__actions"><span class="badge badge--info">Источник: MES</span></div>
         </div>
         <div>
-          <div class="order-card mes-card">
+          <div class="order-card mes-card" data-nav="mes">
             <div class="order-card__head"><div class="order-card__id">DPD Baltic V2 Pilot 1 A</div><div class="order-card__date">16.09.2026</div></div>
             <div class="order-card__project">12 позиций · лазер 0/12 · гибка 0/12</div>
             <div class="order-card__stages">
               <span class="badge badge--warn">⬜ лазер</span>
-              <span class="badge badge--neutral">⬜ гибка</span>
+              <span class="badge">⬜ гибка</span>
             </div>
           </div>
-          <div class="order-card mes-card">
+          <div class="order-card mes-card" data-nav="mes">
             <div class="order-card__head"><div class="order-card__id">Metro Shelf R3 Phase 2</div><div class="order-card__date">15.09.2026</div></div>
             <div class="order-card__project">8 позиций · лазер 8/8 · гибка 3/8</div>
             <div class="order-card__stages">
@@ -599,34 +643,63 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
         </div>
       </div>
 
-      <div class="card">
-        <div class="card__head"><div class="card__title">Этапы</div></div>
-        <div class="card__body">
-          <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-2);">
-            <span class="dot dot--info"></span>
-            <div style="flex:1;font-weight:500;">Лазер</div>
-            <div style="color:var(--text-2);font-size:var(--f-s);">70%</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-2);">
-            <span class="dot dot--neutral"></span>
-            <div style="flex:1;font-weight:500;">Гибка</div>
-            <div style="color:var(--text-2);font-size:var(--f-s);">ожидает</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
-            <span class="dot dot--neutral"></span>
-            <div style="flex:1;font-weight:500;">Малярка</div>
-            <div style="color:var(--text-2);font-size:var(--f-s);">ожидает</div>
-          </div>
-        </div>
+      <div class="tab-bar" data-tabs="order">
+        <button class="tab active" data-tab="overview">Обзор</button>
+        <button class="tab" data-tab="parts">Состав</button>
+        <button class="tab" data-tab="files">Файлы</button>
+        <button class="tab" data-tab="history">История</button>
       </div>
 
-      <div class="card">
-        <div class="card__head"><div class="card__title">Состав</div><div class="card__actions"><button class="btn btn--sm">Отчёт по файлам</button></div></div>
-        <div>
-          <div class="row"><div class="row__main"><div class="row__title mono">DPD-001</div><div class="row__sub">Z275 · 1.5 мм · × 24</div></div><div style="display:flex;gap:4px;"><span class="badge badge--ok">DXF</span><span class="badge badge--ok">PDF</span></div></div>
-          <div class="row"><div class="row__main"><div class="row__title mono">DPD-002</div><div class="row__sub">Z275 · 1.5 мм · × 12</div></div><div style="display:flex;gap:4px;"><span class="badge badge--ok">DXF</span><span class="badge badge--ok">PDF</span></div></div>
-          <div class="row"><div class="row__main"><div class="row__title mono">DPD-003</div><div class="row__sub">Z275 · 2.0 мм · × 8</div></div><div style="display:flex;gap:4px;"><span class="badge badge--dang">нет DXF</span><span class="badge badge--ok">PDF</span></div></div>
-          <div class="row"><div class="row__main"><div class="row__title mono">DPD-004</div><div class="row__sub">Z275 · 1.5 мм · × 16</div></div><div style="display:flex;gap:4px;"><span class="badge badge--ok">DXF</span><span class="badge badge--dang">нет PDF</span></div></div>
+      <div class="card" data-tab-content="order">
+        <div data-tab-pane="overview">
+          <div class="card__body">
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-2);">
+              <span class="dot dot--info"></span><div style="flex:1;font-weight:500;">Лазер</div><div style="color:var(--text-2);font-size:var(--f-s);">70%</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-2);">
+              <span class="dot dot--neutral"></span><div style="flex:1;font-weight:500;">Гибка</div><div style="color:var(--text-2);font-size:var(--f-s);">ожидает</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+              <span class="dot dot--neutral"></span><div style="flex:1;font-weight:500;">Малярка</div><div style="color:var(--text-2);font-size:var(--f-s);">ожидает</div>
+            </div>
+          </div>
+        </div>
+        <div data-tab-pane="parts" style="display:none;">
+          <div>
+            <div class="row" data-dxf="DPD-001"><div class="row__main"><div class="row__title mono">DPD-001</div><div class="row__sub">Z275 · 1.5 мм · × 24</div></div><div style="display:flex;gap:4px;"><span class="badge badge--ok">DXF</span><span class="badge badge--ok">PDF</span></div></div>
+            <div class="row" data-dxf="DPD-002"><div class="row__main"><div class="row__title mono">DPD-002</div><div class="row__sub">Z275 · 1.5 мм · × 12</div></div><div style="display:flex;gap:4px;"><span class="badge badge--ok">DXF</span><span class="badge badge--ok">PDF</span></div></div>
+            <div class="row" data-dxf="DPD-003"><div class="row__main"><div class="row__title mono">DPD-003</div><div class="row__sub">Z275 · 2.0 мм · × 8</div></div><div style="display:flex;gap:4px;"><span class="badge badge--dang">нет DXF</span><span class="badge badge--ok">PDF</span></div></div>
+            <div class="row" data-dxf="DPD-004"><div class="row__main"><div class="row__title mono">DPD-004</div><div class="row__sub">Z275 · 1.5 мм · × 16</div></div><div style="display:flex;gap:4px;"><span class="badge badge--ok">DXF</span><span class="badge badge--dang">нет PDF</span></div></div>
+          </div>
+        </div>
+        <div data-tab-pane="files" style="display:none;">
+          <div class="card__body">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-2);">
+              <span>DPD-001.dxf</span><span class="badge badge--ok">на месте</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-2);">
+              <span>DPD-002.dxf</span><span class="badge badge--warn">отличается от серверного</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-2);">
+              <span>DPD-003.pdf</span><span class="badge badge--dang">нет в папке, есть на сервере</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;">
+              <span>DPD-004.dxf</span><span class="badge badge--warn">лежит под другим именем</span>
+            </div>
+          </div>
+        </div>
+        <div data-tab-pane="history" style="display:none;">
+          <div class="card__body">
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-2);">
+              <span class="dot dot--ok"></span><div style="flex:1;">Наряд создан</div><div style="color:var(--text-3);font-size:var(--f-xs);">12.09 09:15</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border-2);">
+              <span class="dot dot--ok"></span><div style="flex:1;">Лазер запущен</div><div style="color:var(--text-3);font-size:var(--f-xs);">12.09 10:00</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+              <span class="dot dot--info"></span><div style="flex:1;">Лазер 70%</div><div style="color:var(--text-3);font-size:var(--f-xs);">сегодня</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -644,7 +717,6 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
     <div class="page" data-page="myorders">
       <h1 class="page__title">Мои наряды</h1>
       <p class="page__sub">Назначенные лично вам.</p>
-
       <div class="card">
         <div>
           <div class="order-card" data-nav="order-detail">
@@ -667,7 +739,6 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
     <div class="page" data-page="projects">
       <h1 class="page__title">Проекты</h1>
       <p class="page__sub">Спецификации, состав и проблемы.</p>
-
       <div class="card">
         <div class="card__head">
           <div class="card__title">Активные</div>
@@ -682,26 +753,12 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
           <div class="row"><span class="row__icon">📁</span><div class="row__main"><div class="row__title">Alu Frame X1</div><div class="row__sub">14.09.2026 · 14 позиций · <span style="color:var(--dang);">2 проблемы</span></div></div><span class="row__chev">›</span></div>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card__head"><div class="card__title">Быстрые действия проекта</div></div>
-        <div class="card__body">
-          <div class="quick-grid">
-            <button class="quick"><div class="quick__icon">📊</div><div class="quick__label">Сводка</div></button>
-            <button class="quick"><div class="quick__icon">⚠️</div><div class="quick__label">Проблемы</div></button>
-            <button class="quick"><div class="quick__icon">🔩</div><div class="quick__label">Металл</div></button>
-            <button class="quick"><div class="quick__icon">📦</div><div class="quick__label">Собрать наряд</div></button>
-            <button class="quick"><div class="quick__icon">🔍</div><div class="quick__label">Найти позицию</div></button>
-            <button class="quick"><div class="quick__icon">📄</div><div class="quick__label">Прислать спецификацию</div></button>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ============ MES ============ -->
     <div class="page" data-page="mes">
       <h1 class="page__title">MES / SLS Planning</h1>
-      <p class="page__sub">Это ВНЕШНЯЯ система. С нашими нарядами не связана. Металл у них не ведётся. Подетально не отмечаем.</p>
+      <p class="page__sub">Это внешняя система. С нашими нарядами не связана. Металл у них не ведётся. Подетально не отмечаем.</p>
 
       <div class="kpi-grid kpi-grid--3">
         <div class="kpi"><div class="kpi__label">В работе</div><div class="kpi__value">2</div><div class="kpi__hint">активных наряда</div></div>
@@ -717,7 +774,7 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
             <div class="order-card__project">12 позиций · заказ 240916-01 · приоритет высокий</div>
             <div class="order-card__stages">
               <span class="badge badge--warn">⬜ лазер 0/12</span>
-              <span class="badge badge--neutral">⬜ гибка 0/12</span>
+              <span class="badge">⬜ гибка 0/12</span>
             </div>
             <div style="margin-top:12px;font-size:var(--f-xs);color:var(--warn);">⚠️ Лазер не закрыт — гибку MES не примет</div>
           </div>
@@ -729,9 +786,10 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
               <span class="badge badge--info">🔶 гибка 3/8</span>
             </div>
             <div style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
-              <button class="btn btn--sm">Лазер готов</button>
-              <button class="btn btn--sm">Гибка готова</button>
-              <button class="btn btn--sm">Проверить файлы</button>
+              <button class="btn btn--sm" data-action="mes-stage">Лазер готов</button>
+              <button class="btn btn--sm" data-action="mes-stage">Гибка готова</button>
+              <button class="btn btn--sm" data-action="mes-files">Проверить файлы</button>
+              <button class="btn btn--sm" data-action="mes-delete">Удалить наряд</button>
             </div>
           </div>
         </div>
@@ -753,12 +811,12 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
         <div class="card__head"><div class="card__title">Операции</div></div>
         <div class="card__body">
           <div class="quick-grid">
-            <button class="quick"><div class="quick__icon">📥</div><div class="quick__label">Приход</div></button>
-            <button class="quick"><div class="quick__icon">📤</div><div class="quick__label">Взял в цех</div></button>
-            <button class="quick"><div class="quick__icon">↩️</div><div class="quick__label">Вернул на склад</div></button>
-            <button class="quick"><div class="quick__icon">🎨</div><div class="quick__label">Списать расход</div></button>
-            <button class="quick"><div class="quick__icon">＋</div><div class="quick__label">Новая позиция</div></button>
-            <button class="quick"><div class="quick__icon">📜</div><div class="quick__label">Журнал</div></button>
+            <button class="quick" data-action="paint-in"><div class="quick__icon">📥</div><div class="quick__label">Приход</div></button>
+            <button class="quick" data-action="paint-take"><div class="quick__icon">📤</div><div class="quick__label">Взял в цех</div></button>
+            <button class="quick" data-action="paint-back"><div class="quick__icon">↩️</div><div class="quick__label">Вернул на склад</div></button>
+            <button class="quick" data-action="paint-spend"><div class="quick__icon">🎨</div><div class="quick__label">Списать расход</div></button>
+            <button class="quick" data-action="paint-new"><div class="quick__icon">＋</div><div class="quick__label">Новая позиция</div></button>
+            <button class="quick" data-nav="journal"><div class="quick__icon">📜</div><div class="quick__label">Журнал</div></button>
           </div>
         </div>
       </div>
@@ -789,11 +847,14 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
         <div class="card__head"><div class="card__title">Отметка</div></div>
         <div class="card__body">
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn--primary" data-ts="in">Пришёл</button>
-            <button class="btn" data-ts="out">Ушёл</button>
-            <button class="btn" data-ts="idle">Простой</button>
-            <button class="btn">Мой месяц</button>
-            <button class="btn">Поправить день</button>
+            <button class="btn btn--primary btn--lg" data-ts="in" style="flex:1;min-width:120px;">Пришёл</button>
+            <button class="btn btn--lg" data-ts="out" style="flex:1;min-width:120px;">Ушёл</button>
+            <button class="btn btn--lg" data-ts="idle" style="flex:1;min-width:120px;">Простой</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+            <button class="btn btn--sm">Мой месяц</button>
+            <button class="btn btn--sm">Поправить день</button>
+            <button class="btn btn--sm">Все за месяц</button>
           </div>
         </div>
       </div>
@@ -868,6 +929,129 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
       </div>
     </div>
 
+    <!-- ============ REPORTS ============ -->
+    <div class="page" data-page="reports">
+      <h1 class="page__title">Отчёты</h1>
+      <p class="page__sub">Суточный расход и проблемы по проектам.</p>
+      <div class="card">
+        <div class="card__head"><div class="card__title">Расход за сутки</div><div class="card__actions"><button class="btn btn--sm">Сегодня</button><button class="btn btn--sm">Вчера</button></div></div>
+        <div class="card__body">
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-2);">
+            <span>Z275 · 1.5 мм · 1250×2500</span><span style="font-variant-numeric:tabular-nums;">12 л · брак 1</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border-2);">
+            <span>Z100 · 2.0 мм · 1250×2500</span><span style="font-variant-numeric:tabular-nums;">8 л · брак 0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:8px 0;">
+            <span>Нержавейка · 1.0 мм · 1250×2500</span><span style="font-variant-numeric:tabular-nums;">2 л · брак 0</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card__head"><div class="card__title">Проблемы по проекту</div><div class="card__actions"><button class="btn btn--sm">DPD Baltic V2 Pilot</button></div></div>
+        <div>
+          <div class="row"><span class="row__icon">🔴</span><div class="row__main"><div class="row__title">Нет DXF</div><div class="row__sub mono">DPD-003 · Z275 · 2.0 мм · × 8</div></div></div>
+          <div class="row"><span class="row__icon">🔴</span><div class="row__main"><div class="row__title">Несовпадение материала</div><div class="row__sub mono">DPD-031 · спецификация Z275, папка Z100</div></div></div>
+          <div class="row"><span class="row__icon">🟡</span><div class="row__main"><div class="row__title">Несколько совпадений</div><div class="row__sub mono">DPD-044 · найдено 2 версии</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ NOTICES ============ -->
+    <div class="page" data-page="notices">
+      <h1 class="page__title">Уведомления</h1>
+      <p class="page__sub">Системные события с действиями.</p>
+      <div class="card">
+        <div>
+          <div class="pending">
+            <div class="pending__head">
+              <span class="pending__dot" style="background:var(--info);"></span>
+              <div style="flex:1;">
+                <div class="pending__title">Спецификация изменилась</div>
+                <div class="pending__sub">DPD Baltic V2 Pilot · сегодня 09:42 · +3 позиции</div>
+              </div>
+            </div>
+            <div class="pending__actions">
+              <button class="btn btn--sm">Что изменилось</button>
+              <button class="btn btn--primary btn--sm">Пересобрать</button>
+              <button class="btn btn--sm">Пропустить</button>
+            </div>
+          </div>
+          <div class="pending">
+            <div class="pending__head">
+              <span class="pending__dot" style="background:var(--warn);"></span>
+              <div style="flex:1;">
+                <div class="pending__title">Папка наряда пропала</div>
+                <div class="pending__sub">Наряд #16 · DPD Baltic V2 Pilot · проверено 5 мин назад</div>
+              </div>
+            </div>
+            <div class="pending__actions">
+              <button class="btn btn--sm">Проверить сейчас</button>
+              <button class="btn btn--sm">Открыть наряд</button>
+            </div>
+          </div>
+          <div class="pending" style="border-bottom:none;">
+            <div class="pending__head">
+              <span class="pending__dot" style="background:var(--ok);"></span>
+              <div style="flex:1;">
+                <div class="pending__title">Новый наряд в MES</div>
+                <div class="pending__sub">DPD Baltic V2 Pilot 1 A · 12 позиций</div>
+              </div>
+            </div>
+            <div class="pending__actions">
+              <button class="btn btn--sm">Проверить файлы</button>
+              <button class="btn btn--primary btn--sm">Открыть</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SHIPPING PLAN ============ -->
+    <div class="page" data-page="shipplan">
+      <h1 class="page__title">План отгрузки</h1>
+      <p class="page__sub">Обратный расчёт по сменам.</p>
+
+      <div class="kpi-grid kpi-grid--3">
+        <div class="kpi"><div class="kpi__label">Планов</div><div class="kpi__value">3</div><div class="kpi__hint">активных</div></div>
+        <div class="kpi"><div class="kpi__label">Машин на неделе</div><div class="kpi__value">5</div><div class="kpi__hint">отгрузок</div></div>
+        <div class="kpi"><div class="kpi__label">Запас</div><div class="kpi__value kpi__value--warn">2.5</div><div class="kpi__hint">раб. дня</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card__head"><div class="card__title">Активные планы</div><div class="card__actions"><button class="btn btn--primary btn--sm">+ Новый план</button></div></div>
+        <div>
+          <div class="row"><span class="row__icon">📅</span><div class="row__main"><div class="row__title">Bounce · 3 машины</div><div class="row__sub">ближайшая 18.09 · ✅ вариант принят</div></div><span class="row__chev">›</span></div>
+          <div class="row"><span class="row__icon">📅</span><div class="row__main"><div class="row__title">DPD Baltic · 2 машины</div><div class="row__sub">ближайшая 20.09 · ⚠ запас 1.5 дня</div></div><span class="row__chev">›</span></div>
+          <div class="row"><span class="row__icon">📅</span><div class="row__main"><div class="row__title">Metro Shelf</div><div class="row__sub">ближайшая 25.09 · ⛔ не хватает 1 смены</div></div><span class="row__chev">›</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__head"><div class="card__title">Bounce · машины</div><div class="card__actions"><span class="badge badge--ok">вариант принят</span></div></div>
+        <div class="card__body">
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-2);">
+            <div><b>Машина 1</b> · 18.09</div><div style="color:var(--text-2);">резать до 16.09 · 8 типов</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-2);">
+            <div><b>Машина 2</b> · 20.09</div><div style="color:var(--text-2);">резать до 17.09 · 5 типов</div>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:10px 0;">
+            <div><b>Машина 3</b> · 22.09</div><div style="color:var(--text-2);">резать до 19.09 · 3 типа</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card__head"><div class="card__title">Варианты ресурсов</div><div class="card__actions"><button class="btn btn--sm">Смены</button><button class="btn btn--sm">Замеры</button></div></div>
+        <div>
+          <div class="row" style="border-left:3px solid var(--ok);"><div class="row__main"><div class="row__title">Один оператор, обычные смены</div><div class="row__sub">✅ запас 2.5 дня · принят</div></div><span class="row__chev">›</span></div>
+          <div class="row" style="border-left:3px solid var(--warn);"><div class="row__main"><div class="row__title">Второй оператор с 17.09</div><div class="row__sub">⚠ запас 1 день · готов к принятию</div></div><span class="row__chev">›</span></div>
+          <div class="row" style="border-left:3px solid var(--info);"><div class="row__main"><div class="row__title">Сверхурочные на машине 1</div><div class="row__sub">✅ запас 3 дня</div></div><span class="row__chev">›</span></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ============ JOURNAL ============ -->
     <div class="page" data-page="journal">
       <h1 class="page__title">Общий журнал</h1>
@@ -895,10 +1079,9 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
     <div class="page" data-page="pending">
       <h1 class="page__title">Подтверждения</h1>
       <p class="page__sub">Действия, ожидающие вашего решения. Живут 1 час.</p>
-
       <div class="card">
         <div>
-          <div class="pending">
+          <div class="pending" data-pending-id="p1">
             <div class="pending__head">
               <span class="pending__dot"></span>
               <div style="flex:1;">
@@ -908,11 +1091,10 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
             </div>
             <div class="pending__actions">
               <button class="btn btn--sm" data-pending-cancel>Отменить</button>
-              <button class="btn btn--primary btn--sm" data-action="confirm-outgoing">Подтвердить</button>
+              <button class="btn btn--primary btn--sm" data-pending-confirm>Подтвердить</button>
             </div>
           </div>
-
-          <div class="pending">
+          <div class="pending" data-pending-id="p2">
             <div class="pending__head">
               <span class="pending__dot"></span>
               <div style="flex:1;">
@@ -922,11 +1104,10 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
             </div>
             <div class="pending__actions">
               <button class="btn btn--sm" data-pending-cancel>Отменить</button>
-              <button class="btn btn--primary btn--sm" data-action="confirm-order">Подтвердить</button>
+              <button class="btn btn--primary btn--sm" data-pending-confirm>Подтвердить</button>
             </div>
           </div>
-
-          <div class="pending">
+          <div class="pending" data-pending-id="p3">
             <div class="pending__head">
               <span class="pending__dot"></span>
               <div style="flex:1;">
@@ -936,7 +1117,7 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
             </div>
             <div class="pending__actions">
               <button class="btn btn--sm" data-pending-cancel>Отменить</button>
-              <button class="btn btn--primary btn--sm" data-action="confirm-file">Подтвердить</button>
+              <button class="btn btn--primary btn--sm" data-pending-confirm>Подтвердить</button>
             </div>
           </div>
         </div>
@@ -949,32 +1130,29 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
       <p class="page__sub">Только для владельца. Спросите про склад, файлы, наряды или попросите действие.</p>
 
       <div class="card">
-        <div class="chat-body">
+        <div class="chat-body" id="chatBody">
           <div class="msg msg--ai">Привет, Данил. Спроси про остатки, файлы, наряды или попроси выполнить действие.</div>
-
           <div class="msg msg--user">Сколько Z275 1.5 мм на складе?</div>
-
           <div class="msg msg--ai">
-            На складе <b>42</b> годных листа Z275 · 1.5 мм · 1250×2500.<br>
-            Разложено по 5 поддонам.
-            <div class="msg__actions">
-              <button class="btn btn--sm" data-nav="warehouse">Открыть склад</button>
-            </div>
+            На складе <b>42</b> годных листа Z275 · 1.5 мм · 1250×2500.<br>Разложено по 5 поддонам.
+            <div class="msg__actions"><button class="btn btn--sm" data-nav="warehouse">Открыть склад</button></div>
           </div>
-
           <div class="msg msg--user">Найди недостающие DXF по наряду #16</div>
-
           <div class="msg msg--ai">
             Нашёл <b>1</b> позицию без DXF:<br>
             • <span style="font-family:ui-monospace;">DPD-003</span> · Z275 · 2.0 мм · × 8<br><br>
             Файла нет ни в папке наряда, ни на сервере конструкторов.
+            <div class="msg__actions"><button class="btn btn--sm" data-nav="order-detail">Открыть наряд</button></div>
+          </div>
+          <div class="msg msg--user">Покажи DXF детали DPD-001</div>
+          <div class="msg msg--ai">
+            Вот контур раскроя <span style="font-family:ui-monospace;">DPD-001.dxf</span>. Габарит: 1150 × 480 мм.
             <div class="msg__actions">
-              <button class="btn btn--sm" data-nav="order-detail">Открыть наряд</button>
+              <button class="btn btn--sm" data-action="show-dxf" data-dxf="DPD-001">📐 Открыть превью</button>
+              <button class="btn btn--sm" data-action="show-pdf" data-dxf="DPD-001">📄 PDF</button>
             </div>
           </div>
-
           <div class="msg msg--user">Запиши расход 12 листов с Z8-01 на наряд #16</div>
-
           <div class="msg msg--ai">
             Готов записать расход. Проверьте:
             <div class="confirm-row" style="margin-top:8px;"><span class="confirm-row__label">Материал</span><span class="confirm-row__value">Z275 · 1.5 мм</span></div>
@@ -1001,7 +1179,6 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
     <div class="page" data-page="service">
       <h1 class="page__title">Обслуживание</h1>
       <p class="page__sub">Здесь стирают данные. Только владелец. Каждая очистка спросит подтверждение отдельно, а перед ней делается копия базы.</p>
-
       <div class="card">
         <div>
           <div class="row" data-action="clear-stock"><span class="row__icon">🧹</span><div class="row__main"><div class="row__title">Очистить склад металла</div><div class="row__sub">поддоны и движения; справочник материалов останется</div></div><span class="row__chev">›</span></div>
@@ -1016,7 +1193,7 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 </div>
 
 <!-- MOBILE NAV -->
-<nav class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav">
   <div class="mobile-nav__items">
     <button class="mobile-nav__item active" data-nav="overview">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
@@ -1034,9 +1211,10 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
       <span>Наряды</span>
     </button>
-    <button class="mobile-nav__item" data-nav="more">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+    <button class="mobile-nav__item" data-nav="pending">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
       <span>Ещё</span>
+      <span class="mobile-nav__badge">3</span>
     </button>
   </div>
 </nav>
@@ -1044,38 +1222,24 @@ td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 <div class="overlay" id="overlay"></div>
 
 <script>
-/* ============================================================
-   TELEGRAM INIT + HAPTIC (с fallback)
-   ============================================================ */
+/* ============ TELEGRAM INIT ============ */
 const tg = window.Telegram?.WebApp;
-if (tg) {
-  try {
-    tg.ready(); tg.expand();
-    tg.disableVerticalSwipes?.();
-    tg.setHeaderColor?.('bg_color');
-    tg.setBackgroundColor?.('bg_color');
-  } catch(e){}
-}
+if (tg) { try { tg.ready(); tg.expand(); tg.disableVerticalSwipes?.(); } catch(e){} }
 const haptic = {
   tap: () => tg?.HapticFeedback?.impactOccurred?.('light'),
-  soft: () => tg?.HapticFeedback?.impactOccurred?.('soft'),
   success: () => tg?.HapticFeedback?.notificationOccurred?.('success'),
   warn: () => tg?.HapticFeedback?.notificationOccurred?.('warning'),
   error: () => tg?.HapticFeedback?.notificationOccurred?.('error'),
 };
 
-/* ============================================================
-   THEME
-   ============================================================ */
+/* ============ THEME ============ */
 function applyTheme() {
-  const p = tg?.themeParams;
   const r = document.documentElement;
+  const p = tg?.themeParams;
   if (p?.bg_color) r.style.setProperty('--bg', p.bg_color);
   if (p?.secondary_bg_color) r.style.setProperty('--surface-2', p.secondary_bg_color);
   if (p?.text_color) r.style.setProperty('--text', p.text_color);
   if (p?.hint_color) r.style.setProperty('--text-2', p.hint_color);
-  if (p?.link_color) r.style.setProperty('--accent', p.link_color);
-
   const scheme = tg?.colorScheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   r.dataset.theme = scheme;
 }
@@ -1087,40 +1251,57 @@ document.getElementById('themeToggle').addEventListener('click', () => {
   document.documentElement.dataset.theme = cur === 'dark' ? 'light' : 'dark';
 });
 
-/* ============================================================
-   USER (из Telegram или демо)
-   ============================================================ */
-const tgUser = tg?.initDataUnsafe?.user;
-const displayUser = tgUser
-  ? { name: [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || 'Пользователь',
-      initials: (tgUser.first_name?.[0]||'?') + (tgUser.last_name?.[0]||''),
-      role: 'Владелец' }
-  : { name: 'Данил', initials: 'ДВ', role: 'Владелец (демо)' };
-document.getElementById('userName').textContent = displayUser.name;
-document.getElementById('userAvatar').textContent = displayUser.initials.toUpperCase();
-document.getElementById('userRole').textContent = displayUser.role;
+/* ============ ROLE SWITCHER ============ */
+const ROLES = {
+  owner:    { name:'Данил',  initials:'ДВ', label:'Владелец' },
+  chief:    { name:'Игорь',  initials:'ИП', label:'Нач. производства' },
+  tech:     { name:'Олег',   initials:'ОК', label:'Технолог' },
+  laser:    { name:'Пётр',   initials:'ПС', label:'Оператор лазера' },
+  bender:   { name:'Сергей', initials:'СВ', label:'Гибщик' },
+  painter:  { name:'Мария',  initials:'МК', label:'Маляр' },
+  designer: { name:'Анна',   initials:'АЛ', label:'Конструктор' },
+};
+let currentRole = 'owner';
 
-/* ============================================================
-   ROUTER
-   ============================================================ */
+function applyRole(role) {
+  currentRole = role;
+  const u = ROLES[role] || ROLES.owner;
+  document.getElementById('userName').textContent = u.name;
+  document.getElementById('userAvatar').textContent = u.initials;
+  document.getElementById('userRole').textContent = u.label;
+
+  // Скрываем sidebar-пункты по роли
+  document.querySelectorAll('.nav-item[data-role]').forEach(el => {
+    const roles = el.dataset.role.split(',');
+    el.style.display = roles.includes(role) ? '' : 'none';
+  });
+
+  // Ролевой switcher — активная кнопка
+  document.querySelectorAll('.role-chip').forEach(el => {
+    el.classList.toggle('active', el.dataset.role === role);
+  });
+
+  // Если текущая страница недоступна — уходим на overview
+  const currentPage = document.querySelector('.page.active')?.dataset.page;
+  const navItem = document.querySelector(`.nav-item[data-nav="${currentPage}"]`);
+  if (navItem && navItem.style.display === 'none') goto('overview');
+}
+
+document.getElementById('roleSwitcher')?.addEventListener('click', e => {
+  const chip = e.target.closest('.role-chip');
+  if (!chip) return;
+  haptic.tap();
+  applyRole(chip.dataset.role);
+});
+
+/* ============ ROUTER ============ */
 const CRUMBS = {
-  overview: 'Обзор',
-  warehouse: 'Склад',
-  orders: 'Наряды',
-  'order-detail': 'Наряд #16',
-  myorders: 'Мои наряды',
-  projects: 'Проекты',
-  mes: 'MES',
-  paint: 'Краска',
-  journal: 'Общий журнал',
-  timesheet: 'Табель',
-  notes: 'Заметки',
-  rules: 'Правила',
-  users: 'Пользователи',
-  gaps: 'Чего не хватает',
-  pending: 'Подтверждения',
-  ai: 'AI-диспетчер',
-  service: 'Обслуживание',
+  overview:'Обзор', warehouse:'Склад', orders:'Наряды', 'order-detail':'Наряд #16',
+  myorders:'Мои наряды', projects:'Проекты', myprojects:'Мои проекты', checkup:'Проверка',
+  mes:'MES / SLS Planning', paint:'Краска', journal:'Общий журнал', timesheet:'Табель',
+  notes:'Заметки', rules:'Правила', users:'Пользователи', gaps:'Чего не хватает',
+  reports:'Отчёты', notices:'Уведомления', shipplan:'План отгрузки',
+  pending:'Подтверждения', ai:'AI-диспетчер', service:'Обслуживание',
 };
 
 function goto(page) {
@@ -1131,27 +1312,33 @@ function goto(page) {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('backdrop').classList.remove('open');
   window.scrollTo(0, 0);
-  if (tg?.BackButton) {
-    if (page === 'overview') tg.BackButton.hide();
-    else tg.BackButton.show();
-  }
+  // Показываем context bar везде, кроме overview
+  const cb = document.getElementById('contextBar');
+  if (page !== 'overview' && page !== 'ai') cb.style.display = 'flex'; else cb.style.display = 'none';
+  if (tg?.BackButton) { page === 'overview' ? tg.BackButton.hide() : tg.BackButton.show(); }
 }
+tg?.BackButton?.onClick?.(() => goto('overview'));
 
+/* ============ NAV EVENTS ============ */
 document.addEventListener('click', e => {
   const nav = e.target.closest('[data-nav]');
   if (nav) { haptic.tap(); goto(nav.dataset.nav); return; }
   const menu = e.target.closest('#menuBtn');
-  if (menu) { haptic.soft(); document.getElementById('sidebar').classList.toggle('open'); document.getElementById('backdrop').classList.toggle('open'); return; }
+  if (menu) { haptic.tap(); document.getElementById('sidebar').classList.toggle('open'); document.getElementById('backdrop').classList.toggle('open'); return; }
   if (e.target.closest('#backdrop')) {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('backdrop').classList.remove('open');
+    return;
   }
+  if (e.target.closest('#contextClear')) {
+    haptic.tap();
+    document.getElementById('contextBar').style.display = 'none';
+    return;
+  }
+  if (e.target.closest('#searchBtn')) { haptic.tap(); showSearch(); return; }
 });
-tg?.BackButton?.onClick?.(() => goto('overview'));
 
-/* ============================================================
-   SHEET
-   ============================================================ */
+/* ============ SHEET ============ */
 const overlay = document.getElementById('overlay');
 function openSheet(html) {
   overlay.innerHTML = `<div class="sheet"><div class="sheet__handle"></div>${html}</div>`;
@@ -1163,100 +1350,225 @@ function closeSheet() {
 }
 overlay.addEventListener('click', e => { if (e.target === overlay) closeSheet(); });
 
-/* ============================================================
-   ACTIONS (заглушки)
-   ============================================================ */
+/* ============ SEARCH ============ */
+function showSearch() {
+  openSheet(`
+    <div class="sheet__title">Поиск</div>
+    <input id="searchInput" placeholder="Наряд, проект, позиция, поддон, человек..." autofocus style="width:100%;height:44px;padding:0 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);outline:none;" />
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
+      <span class="badge badge--info">Наряды</span>
+      <span class="badge">Проекты</span>
+      <span class="badge">Позиции</span>
+      <span class="badge">Поддоны</span>
+      <span class="badge">Люди</span>
+    </div>
+    <div style="margin-top:16px;color:var(--text-2);font-size:var(--f-s);text-align:center;padding:24px 0;">Начните вводить запрос</div>
+  `);
+}
+
+/* ============ ACTIONS ============ */
 document.addEventListener('click', e => {
   const el = e.target.closest('[data-action]');
   if (!el) return;
   const a = el.dataset.action;
   haptic.tap();
 
-  if (a === 'search') {
-    openSheet(`<div class="sheet__title">Поиск</div>
-      <input placeholder="Наряд, проект, позиция, поддон, человек..." style="width:100%;height:44px;padding:0 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);outline:none;" />
-      <div style="margin-top:12px;font-size:var(--f-s);color:var(--text-3);">Поиск по всей системе. Здесь будет переход в результаты с табами: Наряды · Проекты · Позиции · Поддоны · Люди.</div>
-      <div class="btn-row"><button class="btn btn--primary btn--block" onclick="closeSheet()">Понятно</button></div>`);
-    return;
-  }
-
-  if (a === 'incoming' || a === 'outgoing' || a === 'scrap' || a === 'move' || a === 'inventory' || a === 'newpos' || a === 'pos1c') {
-    const titles = { incoming:'Приход металла', outgoing:'Расход металла', scrap:'Перевод в брак', move:'Перекладка', inventory:'Инвентаризация', newpos:'Новая позиция', pos1c:'Номенклатура 1С' };
-    openSheet(`<div class="sheet__title">${titles[a]}</div>
-      <div style="color:var(--text-2);font-size:var(--f-s);">Полный флоу этой операции: как в боте, но визуально.</div>
-      <div class="confirm-row"><span class="confirm-row__label">Шаги</span><span class="confirm-row__value">материал → формат → марка → ...</span></div>
-      <div class="btn-row"><button class="btn" onclick="closeSheet()">Отмена</button><button class="btn btn--primary" onclick="closeSheet()">Продолжить</button></div>
-      <div style="text-align:center;font-size:var(--f-xs);color:var(--text-3);margin-top:12px;">BACKEND GAP: реальные шаги берутся из dialog.py</div>`);
-    return;
-  }
-
-  if (a === 'confirm-outgoing') {
-    closeSheet();
-    openSheet(`<div class="sheet__title">Записать расход</div>
-      <div class="confirm-row"><span class="confirm-row__label">Материал</span><span class="confirm-row__value">Z275 · 1.5 мм</span></div>
-      <div class="confirm-row"><span class="confirm-row__label">Формат</span><span class="confirm-row__value">1250 × 2500</span></div>
-      <div class="confirm-row"><span class="confirm-row__label">Количество</span><span class="confirm-row__value">12 листов</span></div>
-      <div class="confirm-row"><span class="confirm-row__label">С поддона</span><span class="confirm-row__value">Z8-01</span></div>
-      <div class="confirm-row"><span class="confirm-row__label">На</span><span class="confirm-row__value">Наряд #16</span></div>
-      <div class="confirm-delta">Годных: <b>42 → 30</b></div>
-      <div class="btn-row"><button class="btn" onclick="closeSheet()">Отмена</button><button class="btn btn--primary" onclick="closeSheet();haptic.success();">Записать</button></div>
-      <div style="text-align:center;font-size:var(--f-xs);color:var(--text-3);margin-top:12px;">Это предпросмотр. Реальная запись — через pending.py</div>`);
-    return;
-  }
-
-  if (a === 'confirm-order' || a === 'confirm-file') {
-    closeSheet(); haptic.success();
-    return;
-  }
-
-  if (a === 'delete-order') {
-    haptic.warn();
-    openSheet(`<div class="sheet__title">Удалить наряд #16</div>
-      <div class="danger-note">Вы собираетесь удалить наряд #16.<br>Файлы будут перемещены в <code>_удалённые</code>.</div>
-      <div class="btn-row"><button class="btn" onclick="closeSheet()">Отмена</button><button class="btn btn--dang" onclick="dangerStep2()">Удалить наряд</button></div>
-      <div style="text-align:center;font-size:var(--f-xs);color:var(--text-3);margin-top:12px;">Двойное подтверждение, как в боте</div>`);
-    return;
-  }
-
-  if (a === 'clear-stock' || a === 'clear-paint' || a === 'clear-notes' || a === 'clear-traces') {
-    const titles = { 'clear-stock':'Очистить склад металла','clear-paint':'Очистить склад краски','clear-notes':'Очистить заметки','clear-traces':'Убрать следы проверок' };
-    const notes = { 'clear-stock':'Поддонов открыто: 28. Позиций с остатком: 47. Все поддоны закроются, остатки станут нулевыми, движения уйдут в архив. Справочник материалов останется.','clear-paint':'На складе: 128 кг. В цеху: 34.5 кг. Остатки станут нулевыми, журнал уйдёт в архив. Справочник красок останется.','clear-notes':'Открытых: 2. Всего записей: 12. Удалятся все заметки, включая закрытые.','clear-traces':'Следов проверок: 4. Папки уедут в «_удалённые», а не сотрутся.' };
-    haptic.warn();
-    openSheet(`<div class="sheet__title">🧹 ${titles[a]}</div>
-      <div class="danger-note">${notes[a]}<br><br>Копия базы снимется автоматически. Отменить нельзя. Подтвердите второй раз.</div>
-      <div class="btn-row"><button class="btn" onclick="closeSheet()">Отмена</button><button class="btn btn--dang" onclick="closeSheet();haptic.error();">Да, очистить всё</button></div>`);
-    return;
-  }
-
-  if (a === 'fact' || a === 'assign' || a === 'files-update' || a === 'rename' || a === 'cancel') {
-    openSheet(`<div class="sheet__title">${a}</div>
-      <div style="color:var(--text-2);font-size:var(--f-s);">Заглушка. Соответствует шагу <b>${a}</b> в dialog.py.</div>
-      <div class="btn-row"><button class="btn btn--primary btn--block" onclick="closeSheet()">Понятно</button></div>`);
-    return;
-  }
+  if (a === 'incoming') { showOpSheet('Приход металла', 'материал → формат → марка → качество → количество → поддон'); return; }
+  if (a === 'outgoing') { showOpSheet('Расход металла', 'материал → формат → марка → качество → количество → поддон → на что'); return; }
+  if (a === 'scrap')    { showOpSheet('Перевод в брак', 'с поддона → количество → на бракованный поддон'); return; }
+  if (a === 'move')     { showOpSheet('Перекладка', 'откуда → что → сколько → куда'); return; }
+  if (a === 'inventory'){ showOpSheet('Инвентаризация', 'материал → формат → марка → поддон → количество'); return; }
+  if (a === 'newpos')   { showOpSheet('Новая позиция', 'материал → толщина → формат → марка → остаток'); return; }
+  if (a === 'pos1c')    { showOpSheet('Номенклатура 1С', 'список позиций → выбрать → вписать название'); return; }
+  if (a === 'paint-in') { showOpSheet('Приход краски', 'позиция → количество'); return; }
+  if (a === 'paint-take'){ showOpSheet('Взял в цех', 'позиция → количество'); return; }
+  if (a === 'paint-back'){ showOpSheet('Вернул на склад', 'позиция → количество'); return; }
+  if (a === 'paint-spend'){ showOpSheet('Списать расход', 'позиция → количество → проект/наряд'); return; }
+  if (a === 'paint-new') { showOpSheet('Новая позиция краски', 'код; наименование; цвет; тара'); return; }
+  if (a === 'mes-stage') { showConfirmMesStage(); return; }
+  if (a === 'mes-files') { showOpSheet('Проверить файлы MES', 'папка запуска по имени заказа → чего не хватает'); return; }
+  if (a === 'mes-delete'){ showDoubleConfirm('Удалить наряд в MES', 'Удалить наряд MES', 'Да, удалить наряд MES насовсем', 'Отката нет. Наряд исчезнет во внешней системе SLS Planning.'); return; }
+  if (a === 'fact')     { showOpSheet('Отметить факт', 'позиция → годные и брак'); return; }
+  if (a === 'assign')   { showOpSheet('Назначить рабочего', 'выбор рабочего из списка'); return; }
+  if (a === 'files-update') { showFilesUpdate(); return; }
+  if (a === 'rename')   { showOpSheet('Переименовать запуск', 'новое имя → папка на сервере переедет'); return; }
+  if (a === 'cancel')   { showOpSheet('Отменить наряд', 'причина отмены (обязательна)'); return; }
+  if (a === 'delete-order') { showDoubleConfirm('Удалить наряд #16', 'Удалить наряд', 'Да, удалить наряд насовсем', 'Файлы будут перемещены в <code>_удалённые</code>.'); return; }
+  if (a === 'confirm-outgoing') { showOutgoingConfirm(); return; }
+  if (a === 'show-dxf') { showDxfPreview(el.dataset.dxf); return; }
+  if (a === 'show-pdf') { haptic.tap(); alert('PDF: DPD-001.pdf'); return; }
+  if (a === 'clear-stock' || a === 'clear-paint' || a === 'clear-notes' || a === 'clear-traces') { showClear(a); return; }
 });
 
-function dangerStep2() {
-  haptic.warn();
-  openSheet(`<div class="sheet__title">Подтверждение</div>
-    <div class="danger-note">Это действие нельзя отменить.</div>
-    <div class="btn-row"><button class="btn" onclick="closeSheet()">Отмена</button><button class="btn btn--dang" onclick="closeSheet();haptic.error();goto('orders');">Да, удалить насовсем</button></div>`);
+function showOpSheet(title, hint) {
+  openSheet(`
+    <div class="sheet__title">${title}</div>
+    <div class="confirm-row"><span class="confirm-row__label">Порядок шагов</span><span class="confirm-row__value" style="font-family:inherit;font-weight:500;text-align:right;">${hint}</span></div>
+    <div style="color:var(--text-2);font-size:var(--f-s);margin-top:12px;">В реальной версии здесь будет полный многошаговый флоу с предпросмотром и подтверждением. Кнопки «Назад», «Отмена» — как в боте.</div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">Отмена</button>
+      <button class="btn btn--primary" onclick="closeSheet()">Продолжить</button>
+    </div>
+  `);
 }
 
-/* ============================================================
-   PENDING (удаление строк из списка)
-   ============================================================ */
-document.addEventListener('click', e => {
-  const c = e.target.closest('[data-pending-cancel]');
-  if (!c) return;
+function showOutgoingConfirm() {
+  closeSheet();
+  openSheet(`
+    <div class="sheet__title">Записать расход</div>
+    <div class="confirm-row"><span class="confirm-row__label">Материал</span><span class="confirm-row__value">Z275 · 1.5 мм</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Формат</span><span class="confirm-row__value">1250 × 2500</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Количество</span><span class="confirm-row__value">12 листов</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">С поддона</span><span class="confirm-row__value">Z8-01</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">На</span><span class="confirm-row__value">Наряд #16</span></div>
+    <div class="confirm-delta">Годных: <b>42 → 30</b></div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">Отмена</button>
+      <button class="btn btn--primary" id="confirmDo">Записать</button>
+    </div>
+    <div style="text-align:center;font-size:var(--f-xs);color:var(--text-3);margin-top:12px;">Это предпросмотр. Реальная запись — после подтверждения.</div>
+  `);
+  document.getElementById('confirmDo').addEventListener('click', () => {
+    closeSheet(); haptic.success();
+  });
+}
+
+function showFilesUpdate() {
+  openSheet(`
+    <div class="sheet__title">Обновить файлы · наряд #16</div>
+    <div class="confirm-row"><span class="confirm-row__label">Добавить</span><span class="confirm-row__value">2 файла</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Заменить</span><span class="confirm-row__value">1 файл → <code>_replaced</code></span></div>
+    <div style="margin-top:12px;font-size:var(--f-s);color:var(--text-2);">
+      <div>+ DPD-005.dxf</div>
+      <div>+ DPD-005.pdf</div>
+      <div style="color:var(--warn);">~ DPD-002.dxf (прежний уедет в _replaced)</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">Не копировать</button>
+      <button class="btn btn--primary" onclick="closeSheet();haptic.success();">Да, скопировать</button>
+    </div>
+  `);
+}
+
+function showConfirmMesStage() {
+  openSheet(`
+    <div class="sheet__title">Закрыть этап в MES</div>
+    <div class="confirm-row"><span class="confirm-row__label">Наряд</span><span class="confirm-row__value">Metro Shelf R3 Phase 2</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Этап</span><span class="confirm-row__value">Гибка</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Было</span><span class="confirm-row__value">3 из 8</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Станет</span><span class="confirm-row__value">8 из 8</span></div>
+    <div class="confirm-delta">Строк к закрытию: <b>5</b>. После записи бот перечитает наряд и покажет факт.</div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">Отмена</button>
+      <button class="btn btn--primary" onclick="closeSheet();haptic.success();">Закрыть этап в MES</button>
+    </div>
+  `);
+}
+
+function showDoubleConfirm(title, btn1, btn2, note) {
+  openSheet(`
+    <div class="sheet__title">${title}</div>
+    <div class="danger-note">${note}</div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">Отмена</button>
+      <button class="btn btn--dang" id="dng1">${btn1}</button>
+    </div>
+  `);
+  document.getElementById('dng1').addEventListener('click', () => {
+    haptic.warn();
+    openSheet(`
+      <div class="sheet__title">Подтверждение</div>
+      <div class="danger-note">Это действие нельзя отменить.</div>
+      <div class="btn-row">
+        <button class="btn" onclick="closeSheet()">Отмена</button>
+        <button class="btn btn--dang" id="dng2">${btn2}</button>
+      </div>
+    `);
+    document.getElementById('dng2').addEventListener('click', () => { closeSheet(); haptic.error(); });
+  });
+}
+
+function showClear(a) {
+  const titles = { 'clear-stock':'Очистить склад металла','clear-paint':'Очистить склад краски','clear-notes':'Очистить заметки','clear-traces':'Убрать следы проверок' };
+  const notes = {
+    'clear-stock':'Поддонов открыто: 28. Позиций с остатком: 47. Все поддоны закроются, остатки станут нулевыми, движения уйдут в архив. Справочник материалов останется.',
+    'clear-paint':'На складе: 128 кг. В цеху: 34.5 кг. Остатки станут нулевыми, журнал уйдёт в архив. Справочник красок останется.',
+    'clear-notes':'Открытых: 2. Всего записей: 12. Удалятся все заметки, включая закрытые.',
+    'clear-traces':'Следов проверок: 4. Папки уедут в «_удалённые», а не сотрутся.'
+  };
   haptic.warn();
-  const p = c.closest('.pending');
-  if (p) p.style.opacity = '.35';
+  openSheet(`
+    <div class="sheet__title">🧹 ${titles[a]}</div>
+    <div class="danger-note">${notes[a]}<br><br>Копия базы снимется автоматически. Отменить нельзя. Подтвердите второй раз.</div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">Отмена</button>
+      <button class="btn btn--dang" onclick="closeSheet();haptic.error();">Да, очистить всё</button>
+    </div>
+  `);
+}
+
+/* ============ DXF PREVIEW ============ */
+function showDxfPreview(code) {
+  openSheet(`
+    <div class="sheet__title">Контур ${code}</div>
+    <div class="dxf-preview">
+      <svg viewBox="0 0 400 200" width="100%" height="180">
+        <rect x="40" y="20" width="320" height="160" fill="none" stroke="var(--text)" stroke-width="2"/>
+        <circle cx="80" cy="50" r="6" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+        <circle cx="320" cy="50" r="6" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+        <circle cx="80" cy="150" r="6" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+        <circle cx="320" cy="150" r="6" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+        <line x1="160" y1="20" x2="160" y2="60" stroke="var(--text)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="240" y1="20" x2="240" y2="60" stroke="var(--text)" stroke-width="1" stroke-dasharray="3,3"/>
+        <rect x="150" y="60" width="100" height="80" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="confirm-row"><span class="confirm-row__label">Обозначение</span><span class="confirm-row__value">${code}</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Габарит</span><span class="confirm-row__value">1150 × 480 мм</span></div>
+    <div class="confirm-row"><span class="confirm-row__label">Толщина</span><span class="confirm-row__value">1.5 мм</span></div>
+    <div class="danger-note" style="margin-top:16px;">Это только предварительный просмотр контура. По нему нельзя выполнять резку.</div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSheet()">Закрыть</button>
+      <button class="btn btn--primary" onclick="closeSheet()">Показать PDF</button>
+    </div>
+  `);
+}
+
+/* ============ TABS ============ */
+document.addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  const tabBar = tab.closest('.tab-bar');
+  if (!tabBar) return;
+  haptic.tap();
+  const group = tabBar.dataset.tabs;
+  tabBar.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === tab));
+  document.querySelectorAll(`[data-tab-pane]`).forEach(p => p.style.display = 'none');
+  document.querySelector(`[data-tab-pane="${tab.dataset.tab}"]`).style.display = 'block';
 });
 
-/* ============================================================
-   TIMESHEET (заглушка)
-   ============================================================ */
+/* ============ PENDING ============ */
+document.addEventListener('click', e => {
+  const c = e.target.closest('[data-pending-cancel]');
+  const k = e.target.closest('[data-pending-confirm]');
+  if (c) {
+    haptic.warn();
+    const p = c.closest('.pending');
+    if (p) { p.style.opacity = '.3'; p.style.pointerEvents = 'none'; updatePendingCount(); }
+    return;
+  }
+  if (k) {
+    haptic.success();
+    const p = k.closest('.pending');
+    if (p) { p.style.opacity = '.3'; p.style.pointerEvents = 'none'; updatePendingCount(); }
+  }
+});
+function updatePendingCount() {
+  const n = document.querySelectorAll('.pending:not([style*="pointer-events: none"])').length;
+  document.querySelectorAll('#pendingBadge, #pendingBadgeTop, #kpiPending').forEach(el => { if (el) el.textContent = n; });
+}
+
+/* ============ TIMESHEET ============ */
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-ts]');
   if (!b) return;
@@ -1268,11 +1580,9 @@ document.addEventListener('click', e => {
   document.getElementById('tsStatus').textContent = labels[b.dataset.ts];
 });
 
-/* ============================================================
-   AI CHAT (заглушка)
-   ============================================================ */
+/* ============ AI CHAT ============ */
 function appendMsg(html, cls='msg--ai') {
-  const chat = document.querySelector('[data-page="ai"] .chat-body');
+  const chat = document.getElementById('chatBody');
   const div = document.createElement('div');
   div.className = 'msg ' + cls;
   div.innerHTML = html;
@@ -1281,24 +1591,21 @@ function appendMsg(html, cls='msg--ai') {
 }
 document.getElementById('chatSend').addEventListener('click', sendChat);
 document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') sendChat(); });
-
 function sendChat() {
   const input = document.getElementById('chatInput');
   const q = input.value.trim();
   if (!q) return;
-  haptic.soft();
+  haptic.tap();
   appendMsg(esc(q), 'msg--user');
   input.value = '';
   setTimeout(() => {
-    appendMsg('Это заглушка AI-диспетчера. В реальной версии ответ придёт от n8n-воркфлоу (диспетчер + три помощника).');
+    appendMsg('Это прототип. В реальной версии ответ придёт от AI-диспетчера через backend.');
   }, 400);
 }
-
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* ============================================================
-   BOOT
-   ============================================================ */
+/* ============ INIT ============ */
+applyRole('owner');
 goto('overview');
 </script>
 </body>
